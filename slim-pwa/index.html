@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SLIM·TRACK</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0E1116">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SLIM·TRACK">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0E1116;--bg2:#161B22;--bg3:#1C2128;
+  --accent:#FF6B35;--accent2:#E85D2A;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#484F58;
+  --green:#3FB950;--blue:#58A6FF;--red:#F85149;
+  --border:#30363D;--radius:12px;--safe-b:env(safe-area-inset-bottom,0px)
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+header{padding:16px 20px 12px;padding-top:calc(16px + env(safe-area-inset-top,0px));background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
+header h1{font-size:22px;font-weight:800;letter-spacing:2px;color:var(--accent)}
+header p{font-size:12px;color:var(--text2);margin-top:2px}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(68px + var(--safe-b))}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-b);z-index:100}
+nav button{flex:1;padding:10px 0 6px;background:none;border:none;color:var(--text2);font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s}
+nav button.active{color:var(--accent)}
+nav button svg{width:22px;height:22px}
+
+/* ── panels ── */
+.panel{display:none;padding:16px}
+.panel.active{display:block}
+
+/* ── cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+
+/* ── home ── */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+.stat-value{font-size:26px;font-weight:700;color:var(--text)}
+.stat-unit{font-size:13px;color:var(--text2);margin-left:2px}
+.stat-sub{font-size:11px;margin-top:3px}
+
+.input-group{margin-bottom:12px}
+.input-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600}
+.input-group input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:16px;outline:none;transition:border-color .15s}
+.input-group input:focus{border-color:var(--accent)}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:background .15s;letter-spacing:.5px}
+.btn:active{background:var(--accent2)}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+
+/* ── chart ── */
+canvas{display:block;width:100%;border-radius:8px}
+
+/* ── history ── */
+.entry{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.entry:last-child{border-bottom:none}
+.entry-date{font-size:12px;color:var(--text2);min-width:80px}
+.entry-weight{font-size:20px;font-weight:700;flex:1}
+.entry-delta{font-size:12px;margin-left:6px}
+.entry-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 8px;font-size:18px;transition:color .15s}
+.entry-del:hover{color:var(--red)}
+.empty{text-align:center;padding:48px 0;color:var(--text2);font-size:14px}
+
+/* ── bmi ── */
+.bmi-bar{height:10px;border-radius:5px;background:linear-gradient(to right,#58A6FF 0%,#3FB950 25%,#FF6B35 60%,#F85149 80%);position:relative;margin:16px 0 6px}
+.bmi-needle{position:absolute;top:-4px;width:18px;height:18px;background:#fff;border-radius:50%;border:3px solid var(--bg);transform:translateX(-50%);transition:left .5s cubic-bezier(.4,0,.2,1)}
+.bmi-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text2)}
+.bmi-result{font-size:32px;font-weight:800;margin:8px 0 4px}
+.bmi-cat{font-size:14px;font-weight:600}
+
+/* ── toast ── */
+#toast{position:fixed;bottom:calc(80px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:#333;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:200}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>SLIM·TRACK</h1>
+    <p id="hdr-date"></p>
+  </header>
+
+  <main>
+    <!-- ── 홈 ── -->
+    <div id="panel-home" class="panel active">
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-label">현재 체중</div>
+          <div><span class="stat-value" id="cur-weight">--</span><span class="stat-unit">kg</span></div>
+          <div class="stat-sub" id="cur-delta">--</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">목표까지</div>
+          <div><span class="stat-value" id="to-goal">--</span><span class="stat-unit">kg</span></div>
+          <div class="stat-sub" id="goal-label">--</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">오늘 기록</div>
+        <div class="input-group">
+          <label>체중 (kg)</label>
+          <input id="inp-weight" type="number" step="0.1" min="20" max="300" placeholder="0.0">
+        </div>
+        <div class="input-group">
+          <label>메모 (선택)</label>
+          <input id="inp-memo" type="text" placeholder="예) 아침 공복" maxlength="40">
+        </div>
+        <button class="btn" onclick="saveEntry()">기록 저장</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">최근 7일 추세</div>
+        <canvas id="chart-mini" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- ── 기록 ── -->
+    <div id="panel-log" class="panel">
+      <div class="card">
+        <div class="card-title">전체 기록</div>
+        <div id="log-list"><div class="empty">아직 기록이 없어요</div></div>
+      </div>
+    </div>
+
+    <!-- ── 분석 ── -->
+    <div id="panel-stats" class="panel">
+      <div class="card">
+        <div class="card-title">BMI 계산기</div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>키 (cm)</label>
+            <input id="inp-height" type="number" step="1" min="100" max="250" placeholder="170">
+          </div>
+          <div class="input-group">
+            <label>목표 체중 (kg)</label>
+            <input id="inp-goal" type="number" step="0.1" min="20" max="300" placeholder="60">
+          </div>
+        </div>
+        <button class="btn btn-ghost" onclick="saveSettings()" style="margin-bottom:16px">설정 저장</button>
+        <div class="bmi-result" id="bmi-value">--</div>
+        <div class="bmi-cat" id="bmi-cat"></div>
+        <div class="bmi-bar"><div class="bmi-needle" id="bmi-needle" style="left:0%"></div></div>
+        <div class="bmi-labels"><span>저체중</span><span>정상</span><span>과체중</span><span>비만</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">체중 변화 (30일)</div>
+        <canvas id="chart-main" height="180"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-title">통계 요약</div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-label">최저</div><div><span class="stat-value" id="s-min">--</span><span class="stat-unit">kg</span></div></div>
+          <div class="stat"><div class="stat-label">최고</div><div><span class="stat-value" id="s-max">--</span><span class="stat-unit">kg</span></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-label">평균</div><div><span class="stat-value" id="s-avg">--</span><span class="stat-unit">kg</span></div></div>
+          <div class="stat"><div class="stat-label">총 변화</div><div><span class="stat-value" id="s-diff" style="font-size:22px">--</span><span class="stat-unit">kg</span></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav>
+    <button class="active" onclick="switchTab('home',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      홈
+    </button>
+    <button onclick="switchTab('log',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      기록
+    </button>
+    <button onclick="switchTab('stats',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9l4 4 4-4 4 4V20H5V9z" opacity=".3"/><path d="M5 9l4 4 4-4 4 4V4H5v5z" opacity=".3"/><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="7,14 10,11 13,14 17,10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      분석
+    </button>
+  </nav>
+</div>
+<div id="toast"></div>
+
+<script>
+// ── storage ──
+const DB = {
+  get entries(){ try{return JSON.parse(localStorage.getItem('st_entries')||'[]')}catch{return[]} },
+  set entries(v){ localStorage.setItem('st_entries',JSON.stringify(v)) },
+  get height(){ return parseFloat(localStorage.getItem('st_height'))||0 },
+  set height(v){ localStorage.setItem('st_height',v) },
+  get goal(){ return parseFloat(localStorage.getItem('st_goal'))||0 },
+  set goal(v){ localStorage.setItem('st_goal',v) },
+};
+
+// ── utils ──
+const fmt = (v,d=1)=>v==null?'--':Number(v).toFixed(d);
+const today = ()=>new Date().toISOString().slice(0,10);
+const fmtDate = d=>{const dt=new Date(d+'T12:00');return `${dt.getMonth()+1}/${dt.getDate()}`};
+const fmtFull = d=>{const dt=new Date(d+'T12:00');return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`};
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+// ── header date ──
+document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+// ── tabs ──
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  render();
+}
+
+// ── save entry ──
+function saveEntry(){
+  const w=parseFloat(document.getElementById('inp-weight').value);
+  if(!w||w<20||w>300){toast('올바른 체중을 입력해주세요');return;}
+  const memo=document.getElementById('inp-memo').value.trim();
+  const entries=DB.entries;
+  const idx=entries.findIndex(e=>e.date===today());
+  const entry={date:today(),weight:w,memo};
+  if(idx>=0) entries[idx]=entry; else entries.unshift(entry);
+  entries.sort((a,b)=>b.date.localeCompare(a.date));
+  DB.entries=entries;
+  document.getElementById('inp-weight').value='';
+  document.getElementById('inp-memo').value='';
+  toast('기록 저장 완료!');
+  render();
+}
+
+// ── delete entry ──
+function delEntry(date){
+  if(!confirm('이 기록을 삭제할까요?')) return;
+  DB.entries=DB.entries.filter(e=>e.date!==date);
+  render();
+}
+
+// ── settings ──
+function saveSettings(){
+  const h=parseFloat(document.getElementById('inp-height').value);
+  const g=parseFloat(document.getElementById('inp-goal').value);
+  if(h&&h>=100&&h<=250) DB.height=h;
+  if(g&&g>=20&&g<=300) DB.goal=g;
+  toast('설정이 저장됐어요');
+  render();
+}
+
+// ── bmi ──
+function calcBMI(w,h){
+  if(!w||!h) return null;
+  return w/((h/100)**2);
+}
+function bmiCategory(b){
+  if(b<18.5) return {cat:'저체중',color:'#58A6FF',pct:8};
+  if(b<23)   return {cat:'정상',  color:'#3FB950',pct:28};
+  if(b<25)   return {cat:'과체중',color:'#FF6B35',pct:55};
+  if(b<30)   return {cat:'비만', color:'#F85149',pct:72};
+  return            {cat:'고도비만',color:'#F85149',pct:92};
+}
+
+// ── chart ──
+function drawChart(id,data,days){
+  const canvas=document.getElementById(id);
+  if(!canvas) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||canvas.parentElement.clientWidth;
+  const H=canvas.height=parseInt(canvas.getAttribute('height'));
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  if(!data.length){
+    ctx.fillStyle='#484F58';ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText('데이터가 없어요',W/2,H/2);return;
+  }
+
+  const pts=data.slice(0,days).reverse();
+  const vals=pts.map(e=>e.weight);
+  const mn=Math.min(...vals)-0.5, mx=Math.max(...vals)+0.5;
+  const range=mx-mn||1;
+
+  const pad={t:16,r:12,b:28,l:40};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  const toX=i=>pad.l+(i/(pts.length-1||1))*cw;
+  const toY=v=>pad.t+ch*(1-(v-mn)/range);
+
+  // Grid lines
+  ctx.strokeStyle='#21262D';ctx.lineWidth=1;
+  for(let i=0;i<3;i++){
+    const y=pad.t+i*(ch/2);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    const val=mx-(i*(range/2));
+    ctx.fillStyle='#484F58';ctx.font='10px sans-serif';ctx.textAlign='right';
+    ctx.fillText(val.toFixed(1),pad.l-5,y+4);
+  }
+
+  // Gradient fill
+  if(pts.length>1){
+    const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+    grad.addColorStop(0,'rgba(255,107,53,0.25)');
+    grad.addColorStop(1,'rgba(255,107,53,0)');
+    ctx.beginPath();
+    ctx.moveTo(toX(0),toY(vals[0]));
+    for(let i=1;i<pts.length;i++) ctx.lineTo(toX(i),toY(vals[i]));
+    ctx.lineTo(toX(pts.length-1),pad.t+ch);
+    ctx.lineTo(toX(0),pad.t+ch);
+    ctx.closePath();
+    ctx.fillStyle=grad;ctx.fill();
+  }
+
+  // Line
+  ctx.strokeStyle='#FF6B35';ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.beginPath();
+  pts.forEach((e,i)=>{i===0?ctx.moveTo(toX(i),toY(e.weight)):ctx.lineTo(toX(i),toY(e.weight));});
+  ctx.stroke();
+
+  // Dots + date labels
+  pts.forEach((e,i)=>{
+    ctx.beginPath();ctx.arc(toX(i),toY(e.weight),3.5,0,Math.PI*2);
+    ctx.fillStyle='#FF6B35';ctx.fill();
+    if(pts.length<=10||i===0||i===pts.length-1||i%Math.ceil(pts.length/6)===0){
+      ctx.fillStyle='#484F58';ctx.font='9px sans-serif';ctx.textAlign='center';
+      ctx.fillText(fmtDate(e.date),toX(i),H-pad.b+12);
+    }
+  });
+}
+
+// ── main render ──
+function render(){
+  const entries=DB.entries;
+  const latest=entries[0];
+  const prev=entries[1];
+
+  // ── home ──
+  if(latest){
+    document.getElementById('cur-weight').textContent=fmt(latest.weight);
+    if(prev){
+      const d=latest.weight-prev.weight;
+      const el=document.getElementById('cur-delta');
+      el.textContent=(d>=0?'▲ +':'▼ ')+fmt(Math.abs(d))+'kg 전날 대비';
+      el.style.color=d<=0?'#3FB950':'#F85149';
+    } else {
+      document.getElementById('cur-delta').textContent='첫 기록이에요!';
+      document.getElementById('cur-delta').style.color='#8B949E';
+    }
+    if(DB.goal){
+      const diff=latest.weight-DB.goal;
+      document.getElementById('to-goal').textContent=fmt(Math.abs(diff));
+      document.getElementById('goal-label').textContent=diff>0?'더 빼야 해요':'목표 달성!';
+      document.getElementById('goal-label').style.color=diff>0?'#FF6B35':'#3FB950';
+    } else {
+      document.getElementById('to-goal').textContent='--';
+      document.getElementById('goal-label').textContent='목표 미설정';
+    }
+  }
+  drawChart('chart-mini',entries,7);
+
+  // ── log ──
+  const list=document.getElementById('log-list');
+  if(!entries.length){list.innerHTML='<div class="empty">아직 기록이 없어요</div>';return;}
+  list.innerHTML=entries.map((e,i)=>{
+    const next=entries[i+1];
+    const d=next?e.weight-next.weight:null;
+    const dc=d==null?'':`<span class="entry-delta" style="color:${d<=0?'#3FB950':'#F85149'}">${d<=0?'▼ ':'▲ +'}${fmt(Math.abs(d))}kg</span>`;
+    return `<div class="entry">
+      <div>
+        <div class="entry-date">${fmtFull(e.date)}</div>
+        ${e.memo?`<div style="font-size:11px;color:#8B949E;margin-top:2px">${e.memo}</div>`:''}
+      </div>
+      <div class="entry-weight">${fmt(e.weight)}<span style="font-size:13px;color:#8B949E">kg</span>${dc}</div>
+      <button class="entry-del" onclick="delEntry('${e.date}')">✕</button>
+    </div>`;
+  }).join('');
+
+  // ── stats ──
+  const h=DB.height; const g=DB.goal;
+  if(h) document.getElementById('inp-height').value=h;
+  if(g) document.getElementById('inp-goal').value=g;
+
+  if(latest&&h){
+    const bmi=calcBMI(latest.weight,h);
+    const {cat,color,pct}=bmiCategory(bmi);
+    document.getElementById('bmi-value').textContent=fmt(bmi,1);
+    document.getElementById('bmi-value').style.color=color;
+    document.getElementById('bmi-cat').textContent=cat;
+    document.getElementById('bmi-cat').style.color=color;
+    document.getElementById('bmi-needle').style.left=pct+'%';
+  }
+
+  const recent30=entries.slice(0,30);
+  drawChart('chart-main',recent30,30);
+
+  if(entries.length){
+    const ws=entries.map(e=>e.weight);
+    document.getElementById('s-min').textContent=fmt(Math.min(...ws));
+    document.getElementById('s-max').textContent=fmt(Math.max(...ws));
+    document.getElementById('s-avg').textContent=fmt(ws.reduce((a,b)=>a+b,0)/ws.length);
+    const diff=entries[0].weight-entries[entries.length-1].weight;
+    const el=document.getElementById('s-diff');
+    el.textContent=(diff>=0?'+':'')+fmt(diff);
+    el.style.color=diff<=0?'#3FB950':'#F85149';
+  }
+}
+
+// ── service worker ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+render();
+</script>
+</body>
+</html>
