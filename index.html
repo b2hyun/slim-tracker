@@ -380,8 +380,8 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 /* ── 저장 · 마이그레이션 (구 SLIM·TRACK / 바프 앱 데이터를 자동으로 읽어온다) ── */
 var LKEY="bodytrack:v1";
-var state={mode:"home",workout:{},diet:{},metrics:[],tab:"today",plan:"A",photos:[],lastBackup:null,checks:{},settings:{},myfoods:[],myplan:[]};
-function save(){try{localStorage.setItem(LKEY,JSON.stringify({mode:state.mode,workout:state.workout,diet:state.diet,metrics:state.metrics,plan:state.plan,photos:state.photos,lastBackup:state.lastBackup,checks:state.checks,settings:state.settings,myfoods:state.myfoods,myplan:state.myplan}));return true;}catch(e){return false;}}
+var state={mode:"home",workout:{},diet:{},metrics:[],tab:"today",plan:"A",photos:[],lastBackup:null,checks:{},settings:{},myfoods:[],myplan:[],swap:null};
+function save(){try{localStorage.setItem(LKEY,JSON.stringify({mode:state.mode,workout:state.workout,diet:state.diet,metrics:state.metrics,plan:state.plan,photos:state.photos,lastBackup:state.lastBackup,checks:state.checks,settings:state.settings,myfoods:state.myfoods,myplan:state.myplan,swap:state.swap}));return true;}catch(e){return false;}}
 function migrateBP(entries){
  if(!entries)return;
  var have={};state.metrics.forEach(function(m){have[m.date]=true;});
@@ -415,6 +415,21 @@ function blockNo(){var wk=Math.floor((new Date()-START)/(7*864e5));return Math.m
 function overallPct(){return Math.max(0,Math.min(1,(new Date()-START)/(END-START)));}
 var PHOTO_MAX=60;
 function isMaint(){return new Date()>END;}
+
+/* ── 적응형 스케줄: 어제 놓친 세션 감지 + 오늘 세션 수동 교체 ── */
+var SWCH=false;
+function anyDone(d){var w=state.workout[d];if(!w)return false;for(var k in w){if(w[k]&&w[k].done)return true;}return false;}
+function missedInfo(){
+ var y=new Date();y.setDate(y.getDate()-1);var yi=isoDate(y);
+ var key=trainPhase().sched[(DOW+6)%7];
+ if(!key||key==="rest")return null;
+ if(anyDone(yi))return null;
+ return {key:key,date:yi};}
+function swapDecided(){return state.swap&&state.swap.date===TODAY;}
+function activeKey(){var sk=trainPhase().sched[DOW];return (swapDecided()&&state.swap.key)?state.swap.key:sk;}
+window.setSwap=function(key){state.swap={date:TODAY,key:key};SWCH=false;save();render();};
+window.clearSwap=function(){state.swap={date:TODAY,key:null};SWCH=false;save();render();};
+window.toggleSwch=function(){SWCH=!SWCH;render();};
 
 function dayLog(){return state.workout[TODAY]||(state.workout[TODAY]={});}
 function lastWeight(exId){var ds=Object.keys(state.workout).filter(function(d){return d<TODAY;}).sort().reverse();for(var k=0;k<ds.length;k++){var rec=state.workout[ds[k]][exId];if(rec&&rec.weight)return rec.weight;}return null;}
@@ -601,8 +616,9 @@ function chart(){var pts=state.metrics.filter(function(d){return d.weight!=null;
  '<text x="'+pad+'" y="'+(y(mn)+3)+'" fill="'+MUT+'" font-size="10" font-family="monospace">'+mn.toFixed(0)+'</text></svg></div>';}
 
 /* ── 오늘 탭 ── */
-function viewToday(){var tp=trainPhase(),dp=dietPhase(),key=tp.sched[DOW],dl=dayLog();
+function viewToday(){var tp=trainPhase(),dp=dietPhase(),schedKey=tp.sched[DOW],key=activeKey(),dl=dayLog();
  var streak=calcStreak();
+ var swapped=key!==schedKey;
  var banner='<div class="card" style="padding:12px 14px;margin-bottom:14px;border-color:'+ACC+'33">'+
   '<div class="row" style="justify-content:space-between"><span class="mono" style="font-size:11px;color:'+ACC+';letter-spacing:.06em">'+tp.id+' · '+tp.name+'</span>'+
   '<span class="mono" style="font-size:11px;color:'+MUT+'">'+(isMaint()?'유지 모드':'블록 '+blockNo())+'</span></div>'+
@@ -610,10 +626,27 @@ function viewToday(){var tp=trainPhase(),dp=dietPhase(),key=tp.sched[DOW],dl=day
   '<div style="font-size:12px;color:'+MUT+';margin-top:3px">'+tp.focus+' · '+dp.kcal.toLocaleString()+'kcal / 단백질 '+dp.protein+'g</div></div>';
  var g=guardInfo();
  var guard=g?'<div class="card" style="padding:12px 14px;margin-bottom:14px;border-color:'+CRIT+';color:'+CRIT+';font-size:13px">'+g+'</div>':'';
- if(key==="rest")return '<div class="pane">'+banner+guard+'<div class="card" style="padding:40px 20px;text-align:center;color:'+MUT+'"><div style="font-size:32px;margin-bottom:8px">—</div>휴식일. 회복도 훈련이다 — 잠 7–8시간, 폭식 금지.</div></div>';
+ /* 어제 놓친 세션 → 오늘 보충 제안 (아직 오늘 결정/운동 전일 때만) */
+ var missed=missedInfo(),sug="";
+ if(missed&&!swapDecided()&&!anyDone(TODAY)){
+  var msess=SESSIONS[missed.key];
+  sug='<div class="card" style="padding:12px 14px;margin-bottom:14px;border-color:'+ACC+'66">'+
+   '<div style="font-size:13px;line-height:1.5">어제 <b>'+msess.tag+'</b> ('+msess.name+') 기록이 없어요. 오늘 보충할까요?</div>'+
+   '<div style="display:flex;gap:6px;margin-top:10px">'+
+   '<button onclick="setSwap(\''+missed.key+'\')" style="flex:1;background:'+ACC+';color:#1a1206;font-weight:700;border-radius:9px;padding:9px 0;font-size:13px">오늘 '+msess.tag+' 하기</button>'+
+   '<button onclick="clearSwap()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:9px;padding:9px 0;font-size:13px">오늘 루틴대로</button></div></div>';}
+ /* 수동 세션 변경 */
+ var swKeys=["push","pull","legsA","deltBack","legsB","rest"];
+ var swRow=SWCH?'<div class="card" style="padding:10px 12px;margin-bottom:14px"><div style="font-size:11px;color:'+MUT+';margin-bottom:8px">오늘 세션 직접 선택 (컨디션·일정에 맞게)</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+
+  swKeys.map(function(k){var on=key===k;var label=k==="rest"?"휴식":SESSIONS[k].tag;return '<button onclick="setSwap(\''+k+'\')" style="border-radius:8px;padding:7px 10px;font-size:11px;font-weight:600;background:'+(on?ACC:SURF2)+';color:'+(on?'#1a1206':MUT)+'">'+label+'</button>';}).join("")+
+  '<button onclick="clearSwap()" style="border-radius:8px;padding:7px 10px;font-size:11px;font-weight:600;background:'+SURF2+';color:'+TEAL+'">기본으로</button></div></div>':'';
+ var swBtn='<button onclick="toggleSwch()" style="border:1px '+(swapped?'solid '+ACC:'dashed '+LINE)+';color:'+(swapped?ACC:MUT)+';border-radius:8px;padding:5px 10px;font-size:11px">세션 변경'+(swapped?' · 변경됨':'')+'</button>';
+ if(key==="rest")return '<div class="pane">'+banner+guard+sug+
+  '<div class="row" style="justify-content:flex-end;margin-bottom:10px">'+swBtn+'</div>'+swRow+
+  '<div class="card" style="padding:40px 20px;text-align:center;color:'+MUT+'"><div style="font-size:32px;margin-bottom:8px">—</div>휴식일. 회복도 훈련이다 — 잠 7–8시간, 폭식 금지.</div></div>';
  var sess=SESSIONS[key];
  var head='<div class="row" style="justify-content:space-between;margin-bottom:14px"><div>'+
-  '<div class="mono" style="font-size:11px;color:'+ACC+';letter-spacing:.08em">'+sess.tag+'</div>'+
+  '<div class="mono" style="font-size:11px;color:'+ACC+';letter-spacing:.08em">'+sess.tag+(swapped?' <span style="color:'+MUT+'">· 오늘만 변경</span>':'')+'</div>'+
   '<div style="font-size:22px;font-weight:600;letter-spacing:-.02em">'+sess.name+'</div></div>'+
   '<div style="display:flex;background:'+SURF2+';border-radius:9px;padding:3px">'+
   ['home','gym'].map(function(m){var on=state.mode===m;return '<button onclick="setMode(\''+m+'\')" style="border-radius:7px;padding:6px 11px;font-size:12px;font-weight:600;background:'+(on?ACC:'transparent')+';color:'+(on?'#1a1206':MUT)+'">'+(m==='home'?'집':'헬스장')+'</button>';}).join("")+'</div></div>';
@@ -627,7 +660,7 @@ function viewToday(){var tp=trainPhase(),dp=dietPhase(),key=tp.sched[DOW],dl=day
    '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:500;'+(dn?'text-decoration:line-through':'')+'">'+(state.mode==="home"?ex.h:ex.g)+'</div>'+
    '<div class="mono" style="font-size:11px;color:'+MUT+';margin-top:2px">'+r+goal+'</div></div>'+inp+'</div></div>';
  }).join("");
- return '<div class="pane">'+banner+guard+head+'<div class="mono" style="font-size:12px;color:'+MUT+';margin-bottom:10px">'+done+'/'+sess.items.length+' 완료 · 목표는 본인 지난 기록에서 자동 계산</div><div style="display:flex;flex-direction:column;gap:8px">'+list+'</div>'+
+ return '<div class="pane">'+banner+guard+sug+head+swRow+'<div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="mono" style="font-size:12px;color:'+MUT+'">'+done+'/'+sess.items.length+' 완료 · 목표는 지난 기록에서 자동 계산</span>'+swBtn+'</div><div style="display:flex;flex-direction:column;gap:8px">'+list+'</div>'+
  '<div style="font-size:11px;color:'+MUT+';margin-top:12px;line-height:1.5">물 2L 이상 · 크레아틴 5g 매일 · 매일 1만~1.2만보 · 마지막 세트는 1~2회 남기고 멈추기(RPE 8~9)'+(dp.cut?' · 커팅 중엔 중량 "유지"가 곧 승리':'')+'</div></div>';}
 
 /* ── 연료 탭 ── */
