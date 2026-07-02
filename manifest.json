@@ -1,6 +1,6 @@
 {
-  "name": "SLIM·TRACK",
-  "short_name": "SLIM·TRACK",
+  "name": "바프·트랙",
+  "short_name": "바프트랙",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
