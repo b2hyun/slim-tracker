@@ -468,6 +468,229 @@ var FOODDB=[
  {n:"오리엔탈드레싱",u:"1큰술",p:0,c:35,f:2,b:4.2},{n:"시저드레싱",u:"1큰술",p:0,c:80,f:8,b:2},
  {n:"곶감",u:"1개",p:0.5,c:110,f:0,b:27},
 ];
+var FOODDB_BRAND=[
+ {n:"신라면",u:"1봉지",p:10,c:500,f:16,b:79},
+ {n:"신라면 컵",u:"1개",p:7,c:315,f:11,b:47},
+ {n:"신라면 큰사발",u:"1개",p:11,c:505,f:17,b:77},
+ {n:"진라면 순한맛",u:"1봉지",p:10,c:500,f:16,b:79},
+ {n:"진라면 매운맛",u:"1봉지",p:10,c:505,f:16,b:80.2},
+ {n:"안성탕면",u:"1봉지",p:9,c:470,f:15,b:74.8},
+ {n:"너구리",u:"1봉지",p:10,c:500,f:16,b:79},
+ {n:"삼양라면",u:"1봉지",p:10,c:505,f:17,b:78},
+ {n:"불닭볶음면",u:"1봉지",p:12,c:530,f:17,b:82.2},
+ {n:"불닭볶음면 큰컵",u:"1개",p:13,c:600,f:19,b:94.2},
+ {n:"불닭볶음면 컵",u:"1개",p:9,c:470,f:15,b:74.8},
+ {n:"까르보불닭볶음면",u:"1봉지",p:13,c:540,f:19,b:79.2},
+ {n:"치즈불닭볶음면",u:"1봉지",p:13,c:545,f:19,b:80.5},
+ {n:"짜파게티",u:"1봉지",p:11,c:600,f:20,b:94},
+ {n:"짜왕",u:"1봉지",p:13,c:620,f:22,b:92.5},
+ {n:"틈새라면",u:"1봉지",p:10,c:505,f:17,b:78},
+ {n:"팔도비빔면",u:"1봉지",p:8,c:530,f:14,b:93},
+ {n:"열라면",u:"1봉지",p:10,c:500,f:16,b:79},
+ {n:"육개장 사발면",u:"1개",p:6,c:290,f:11,b:41.8},
+ {n:"왕뚜껑",u:"1개",p:8,c:455,f:16,b:69.8},
+ {n:"참깨라면",u:"1봉지",p:10,c:500,f:17,b:76.8},
+ {n:"사리곰탕면",u:"1봉지",p:8,c:450,f:14,b:73},
+ {n:"김치사발면",u:"1개",p:6,c:280,f:10,b:41.5},
+ {n:"오징어짬뽕",u:"1봉지",p:10,c:500,f:16,b:79},
+ {n:"진짬뽕",u:"1봉지",p:12,c:560,f:19,b:85.2},
+ {n:"전주비빔 삼각김밥",u:"1개",p:5,c:195,f:4,b:34.8},
+ {n:"참치마요 삼각김밥",u:"1개",p:6,c:225,f:7,b:34.5},
+ {n:"불고기 삼각김밥",u:"1개",p:6,c:215,f:6,b:34.2},
+ {n:"스팸마요 삼각김밥",u:"1개",p:6,c:230,f:8,b:33.5},
+ {n:"김치볶음 삼각김밥",u:"1개",p:4,c:200,f:5,b:34.8},
+ {n:"참치마요 김밥",u:"1줄",p:10,c:430,f:13,b:68.2},
+ {n:"소고기 김밥",u:"1줄",p:11,c:450,f:13,b:72.2},
+ {n:"치즈 김밥",u:"1줄",p:12,c:470,f:15,b:71.8},
+ {n:"돈까스 도시락",u:"1개",p:24,c:720,f:26,b:97.5},
+ {n:"제육 도시락",u:"1개",p:26,c:690,f:24,b:92.5},
+ {n:"불고기 도시락",u:"1개",p:24,c:640,f:20,b:91},
+ {n:"치킨마요 덮밥",u:"1개",p:18,c:560,f:16,b:86},
+ {n:"닭가슴살 도시락",u:"1개",p:34,c:470,f:9,b:63.2},
+ {n:"햇반",u:"1개(210g)",p:6,c:310,f:1,b:69.2},
+ {n:"햇반 큰공기",u:"1개(300g)",p:8,c:440,f:1,b:99.8},
+ {n:"컵밥 제육",u:"1개",p:16,c:530,f:15,b:82.8},
+ {n:"오뎅바",u:"1개",p:5,c:120,f:3,b:18.2},
+ {n:"맛있닭 닭가슴살",u:"1팩(100g)",p:24,c:110,f:1.5,b:0.1},
+ {n:"허닭 닭가슴살",u:"1팩(100g)",p:23,c:115,f:2,b:1.2},
+ {n:"아임닭 닭가슴살볼",u:"1팩",p:22,c:150,f:4,b:6.5},
+ {n:"훈제란 2입",u:"1팩",p:13,c:150,f:10,b:2},
+ {n:"맥주안주 육포",u:"1봉(30g)",p:15,c:110,f:2,b:8},
+ {n:"비프저키",u:"1봉(30g)",p:14,c:105,f:2,b:7.8},
+ {n:"닭가슴살 소시지",u:"1개",p:11,c:90,f:4,b:2.5},
+ {n:"새우깡",u:"1봉(90g)",p:5,c:455,f:20,b:63.8},
+ {n:"포카칩 오리지널",u:"1봉(66g)",p:3,c:360,f:22,b:37.5},
+ {n:"포카칩 어니언",u:"1봉(66g)",p:3,c:355,f:22,b:36.2},
+ {n:"프링글스",u:"1통(110g)",p:6,c:560,f:36,b:53},
+ {n:"스윙칩",u:"1봉(80g)",p:4,c:430,f:24,b:49.5},
+ {n:"꼬깔콘",u:"1봉(72g)",p:4,c:390,f:20,b:48.5},
+ {n:"허니버터칩",u:"1봉(60g)",p:3,c:325,f:18,b:37.8},
+ {n:"오징어땅콩",u:"1봉",p:10,c:470,f:26,b:49},
+ {n:"맛동산",u:"1봉(90g)",p:5,c:450,f:20,b:62.5},
+ {n:"홈런볼",u:"1갑",p:5,c:370,f:22,b:38},
+ {n:"초코파이",u:"1개",p:2,c:170,f:7,b:24.8},
+ {n:"몽쉘",u:"1개",p:2,c:190,f:10,b:23},
+ {n:"빼빼로",u:"1갑",p:5,c:330,f:15,b:43.8},
+ {n:"에이스",u:"1봉",p:6,c:420,f:18,b:58.5},
+ {n:"칸초",u:"1갑",p:4,c:300,f:13,b:41.8},
+ {n:"오예스",u:"1개",p:2,c:190,f:10,b:23},
+ {n:"카스타드",u:"1개",p:2,c:90,f:4,b:11.5},
+ {n:"고래밥",u:"1봉",p:3,c:190,f:7,b:28.8},
+ {n:"죠리퐁",u:"1봉",p:6,c:380,f:7,b:73.2},
+ {n:"콘칩",u:"1봉",p:4,c:300,f:15,b:37.2},
+ {n:"자갈치",u:"1봉",p:7,c:430,f:22,b:51},
+ {n:"양파링",u:"1봉",p:4,c:340,f:16,b:45},
+ {n:"썬칩",u:"1봉",p:4,c:340,f:18,b:40.5},
+ {n:"바나나킥",u:"1봉",p:3,c:300,f:15,b:38.2},
+ {n:"인디안밥",u:"1봉",p:5,c:330,f:13,b:48.2},
+ {n:"치토스",u:"1봉",p:5,c:360,f:20,b:40},
+ {n:"포스틱",u:"1봉",p:4,c:330,f:17,b:40.2},
+ {n:"메로나",u:"1개",p:2,c:140,f:3,b:26.2},
+ {n:"월드콘",u:"1개",p:4,c:270,f:12,b:36.5},
+ {n:"부라보콘",u:"1개",p:4,c:270,f:12,b:36.5},
+ {n:"스크류바",u:"1개",p:0,c:90,f:0,b:22.5},
+ {n:"죠스바",u:"1개",p:0,c:90,f:0,b:22.5},
+ {n:"수박바",u:"1개",p:0,c:110,f:0,b:27.5},
+ {n:"빵빠레",u:"1개",p:3,c:200,f:9,b:26.8},
+ {n:"설레임",u:"1개",p:3,c:180,f:6,b:28.5},
+ {n:"붕어싸만코",u:"1개",p:4,c:240,f:9,b:35.8},
+ {n:"찰떡아이스",u:"1개",p:3,c:220,f:8,b:34},
+ {n:"탱크보이",u:"1개",p:0,c:110,f:0,b:27.5},
+ {n:"돼지바",u:"1개",p:2,c:180,f:9,b:22.8},
+ {n:"투게더",u:"1컵(작은)",p:4,c:230,f:12,b:26.5},
+ {n:"나뚜루 파인트",u:"100ml",p:3,c:220,f:13,b:22.8},
+ {n:"하겐다즈",u:"100ml",p:4,c:250,f:17,b:20.2},
+ {n:"빙그레 바나나맛우유 아이스",u:"1개",p:3,c:150,f:5,b:23.2},
+ {n:"코카콜라",u:"1캔(355ml)",p:0,c:150,f:0,b:37.5},
+ {n:"코카콜라 제로",u:"1캔",p:0,c:0,f:0,b:0},
+ {n:"스프라이트",u:"1캔",p:0,c:140,f:0,b:35},
+ {n:"펩시",u:"1캔",p:0,c:150,f:0,b:37.5},
+ {n:"펩시 제로",u:"1캔",p:0,c:0,f:0,b:0},
+ {n:"칠성사이다",u:"1캔",p:0,c:145,f:0,b:36.2},
+ {n:"환타 오렌지",u:"1캔",p:0,c:160,f:0,b:40},
+ {n:"몬스터 에너지",u:"1캔(355ml)",p:0,c:160,f:0,b:40},
+ {n:"레드불",u:"1캔(250ml)",p:0,c:115,f:0,b:28.8},
+ {n:"핫식스",u:"1캔(250ml)",p:0,c:120,f:0,b:30},
+ {n:"박카스",u:"1병",p:0,c:60,f:0,b:15},
+ {n:"포카리스웨트",u:"1병(500ml)",p:0,c:135,f:0,b:33.8},
+ {n:"게토레이",u:"1병(600ml)",p:0,c:150,f:0,b:37.5},
+ {n:"파워에이드",u:"1병(600ml)",p:0,c:160,f:0,b:40},
+ {n:"비타500",u:"1병",p:0,c:60,f:0,b:15},
+ {n:"밀키스",u:"1캔",p:0,c:140,f:0,b:35},
+ {n:"welchs 포도",u:"1캔",p:0,c:170,f:0,b:42.5},
+ {n:"칸타타 아메리카노",u:"1캔",p:0,c:25,f:0,b:6.2},
+ {n:"레쓰비 마일드",u:"1캔",p:2,c:120,f:3,b:21.2},
+ {n:"맥심 티오피",u:"1캔",p:2,c:110,f:3,b:18.8},
+ {n:"조지아 오리지널",u:"1캔",p:2,c:100,f:3,b:16.2},
+ {n:"바나나맛우유",u:"1개(240ml)",p:6,c:200,f:5,b:32.8},
+ {n:"딸기맛우유",u:"1개",p:6,c:200,f:5,b:32.8},
+ {n:"초코에몽",u:"1개",p:6,c:200,f:5,b:32.8},
+ {n:"밀크티",u:"1병(500ml)",p:4,c:230,f:5,b:42.2},
+ {n:"아침햇살",u:"1병(500ml)",p:2,c:190,f:0,b:45.5},
+ {n:"식혜",u:"1캔(238ml)",p:1,c:120,f:0,b:29},
+ {n:"데자와",u:"1캔",p:2,c:120,f:2,b:23.5},
+ {n:"실론티",u:"1병(500ml)",p:0,c:140,f:0,b:35},
+ {n:"토레타",u:"1병(500ml)",p:0,c:110,f:0,b:27.5},
+ {n:"트로피카나 오렌지",u:"1병(240ml)",p:1,c:110,f:0,b:26.5},
+ {n:"델몬트 오렌지",u:"1잔(200ml)",p:1,c:95,f:0,b:22.8},
+ {n:"초코우유(서울)",u:"1개(300ml)",p:9,c:240,f:7,b:35.2},
+ {n:"연세우유",u:"1개(200ml)",p:6,c:130,f:5,b:15.2},
+ {n:"서울우유",u:"1개(200ml)",p:6,c:130,f:5,b:15.2},
+ {n:"매일두유 99.9",u:"1팩(190ml)",p:6,c:95,f:4,b:8.8},
+ {n:"베지밀 A",u:"1팩(190ml)",p:5,c:110,f:4,b:13.5},
+ {n:"삼육두유",u:"1팩(190ml)",p:6,c:120,f:4,b:15},
+ {n:"마이프로틴 임팩트",u:"1스쿱(25g)",p:21,c:103,f:1.9,b:0.5},
+ {n:"옵티멈 골드스탠다드",u:"1스쿱(30g)",p:24,c:120,f:1.5,b:2.6},
+ {n:"신타6",u:"1스쿱",p:22,c:200,f:6,b:14.5},
+ {n:"프로틴바(퀘스트)",u:"1개",p:21,c:200,f:8,b:11},
+ {n:"칼로바이 프로틴",u:"1스쿱",p:24,c:120,f:2,b:1.5},
+ {n:"몬스터밀크",u:"1스쿱",p:25,c:160,f:4,b:6},
+ {n:"단백보충제(대용량)",u:"1스쿱",p:25,c:180,f:4,b:11},
+ {n:"프로틴 음료(마이밀)",u:"1병",p:15,c:180,f:4,b:21},
+ {n:"셀렉스 프로틴",u:"1스쿱",p:18,c:150,f:4,b:10.5},
+ {n:"칸타타 프로틴",u:"1병",p:20,c:200,f:5,b:18.8},
+ {n:"얼티밋 프로틴바",u:"1개",p:20,c:230,f:9,b:17.2},
+ {n:"빅맥",u:"1개",p:25,c:550,f:29,b:47.2},
+ {n:"맥도날드 상하이버거",u:"1개",p:24,c:480,f:22,b:46.5},
+ {n:"맥도날드 불고기버거",u:"1개",p:13,c:400,f:16,b:51},
+ {n:"맥너겟 6조각",u:"1개",p:15,c:270,f:16,b:16.5},
+ {n:"맥도날드 감자튀김(중)",u:"1개",p:4,c:320,f:15,b:42.2},
+ {n:"맥스파이시상하이",u:"1개",p:25,c:500,f:24,b:46},
+ {n:"롯데리아 불고기버거",u:"1개",p:14,c:400,f:17,b:47.8},
+ {n:"롯데리아 새우버거",u:"1개",p:13,c:430,f:20,b:49.5},
+ {n:"롯데리아 치즈스틱",u:"1개",p:6,c:180,f:11,b:14.2},
+ {n:"와퍼",u:"1개",p:28,c:650,f:37,b:51.2},
+ {n:"버거킹 통새우와퍼",u:"1개",p:22,c:590,f:32,b:53.5},
+ {n:"버거킹 치킨킹",u:"1개",p:26,c:620,f:33,b:54.8},
+ {n:"맘스터치 싸이버거",u:"1개",p:27,c:560,f:28,b:50},
+ {n:"맘스터치 케이준감자",u:"1개",p:5,c:350,f:18,b:42},
+ {n:"KFC 징거버거",u:"1개",p:25,c:510,f:24,b:48.5},
+ {n:"서브웨이 에그마요 15cm",u:"1개",p:19,c:470,f:20,b:53.5},
+ {n:"서브웨이 로스트치킨 15cm",u:"1개",p:26,c:350,f:6,b:48},
+ {n:"서브웨이 이탈리안BMT 15cm",u:"1개",p:23,c:480,f:22,b:47.5},
+ {n:"서브웨이 스테이크 15cm",u:"1개",p:27,c:420,f:15,b:44.2},
+ {n:"BBQ 황금올리브 1조각",u:"1조각",p:13,c:190,f:11,b:9.8},
+ {n:"교촌 허니콤보 1조각",u:"1조각",p:10,c:180,f:10,b:12.5},
+ {n:"BHC 뿌링클 1조각",u:"1조각",p:12,c:200,f:12,b:11},
+ {n:"굽네 고추바사삭 1조각",u:"1조각",p:13,c:160,f:8,b:9},
+ {n:"네네 스노윙치킨 1조각",u:"1조각",p:12,c:195,f:11,b:12},
+ {n:"푸라닭 1조각",u:"1조각",p:13,c:190,f:11,b:9.8},
+ {n:"자메이카 통다리",u:"1개",p:18,c:300,f:18,b:16.5},
+ {n:"치킨무",u:"1접시",p:0,c:25,f:0,b:6.2},
+ {n:"스타벅스 아메리카노 톨",u:"1잔",p:1,c:10,f:0,b:1.5},
+ {n:"스타벅스 카페라떼 톨",u:"1잔",p:12,c:190,f:7,b:19.8},
+ {n:"스타벅스 카푸치노 톨",u:"1잔",p:8,c:120,f:4,b:13},
+ {n:"스타벅스 카라멜마끼아또 톨",u:"1잔",p:10,c:250,f:7,b:36.8},
+ {n:"스타벅스 자바칩프라푸치노 톨",u:"1잔",p:6,c:370,f:15,b:52.8},
+ {n:"스타벅스 돌체라떼 톨",u:"1잔",p:11,c:280,f:8,b:41},
+ {n:"스타벅스 콜드브루 톨",u:"1잔",p:1,c:5,f:0,b:0.2},
+ {n:"스타벅스 그린티라떼 톨",u:"1잔",p:10,c:240,f:6,b:36.5},
+ {n:"바닐라라떼 톨",u:"1잔",p:9,c:210,f:6,b:30},
+ {n:"초코라떼 톨",u:"1잔",p:9,c:330,f:10,b:51},
+ {n:"아이스티(복숭아)",u:"1잔",p:0,c:120,f:0,b:30},
+ {n:"스타벅스 자몽허니블랙티",u:"1잔",p:0,c:140,f:0,b:35},
+ {n:"스타벅스 딸기딜라이트",u:"1잔",p:2,c:240,f:3,b:51.2},
+ {n:"소보로빵",u:"1개",p:6,c:320,f:12,b:47},
+ {n:"단팥빵",u:"1개",p:7,c:280,f:6,b:49.5},
+ {n:"슈크림빵",u:"1개",p:6,c:290,f:13,b:37.2},
+ {n:"소시지빵",u:"1개",p:10,c:340,f:16,b:39},
+ {n:"피자빵",u:"1개",p:10,c:330,f:14,b:41},
+ {n:"크림치즈베이글",u:"1개",p:13,c:380,f:12,b:55},
+ {n:"치즈케이크 조각",u:"1조각",p:7,c:350,f:22,b:31},
+ {n:"생크림케이크 조각",u:"1조각",p:4,c:340,f:20,b:36},
+ {n:"티라미수 조각",u:"1조각",p:6,c:360,f:22,b:34.5},
+ {n:"몽블랑",u:"1개",p:5,c:330,f:18,b:37},
+ {n:"에그타르트",u:"1개",p:4,c:200,f:12,b:19},
+ {n:"카스테라 조각",u:"1조각",p:5,c:240,f:8,b:37},
+ {n:"크로와상",u:"1개",p:5,c:270,f:15,b:28.8},
+ {n:"페이스트리",u:"1개",p:5,c:320,f:20,b:30},
+ {n:"마카롱",u:"1개",p:2,c:100,f:5,b:11.8},
+ {n:"휘낭시에",u:"1개",p:3,c:180,f:11,b:17.2},
+ {n:"스콘",u:"1개",p:6,c:350,f:16,b:45.5},
+ {n:"소금빵",u:"1개",p:6,c:300,f:16,b:33},
+ {n:"떡볶이 1인분",u:"1인분",p:8,c:480,f:10,b:89.5},
+ {n:"로제떡볶이",u:"1인분",p:12,c:560,f:18,b:87.5},
+ {n:"치즈떡볶이",u:"1인분",p:14,c:600,f:20,b:91},
+ {n:"순대 1인분",u:"1인분",p:14,c:350,f:12,b:46.5},
+ {n:"튀김만두 5개",u:"1개",p:10,c:320,f:16,b:34},
+ {n:"핫도그(명랑)",u:"1개",p:8,c:290,f:14,b:33},
+ {n:"치즈핫도그",u:"1개",p:11,c:360,f:18,b:38.5},
+ {n:"붕어빵",u:"1개",p:3,c:120,f:3,b:20.2},
+ {n:"호떡",u:"1개",p:3,c:230,f:8,b:36.5},
+ {n:"타코야끼 6알",u:"1개",p:8,c:300,f:14,b:35.5},
+ {n:"만두(비비고 왕교자)",u:"4개",p:12,c:300,f:15,b:29.2},
+ {n:"군만두 5개",u:"1개",p:12,c:300,f:14,b:31.5},
+ {n:"피자(냉동 1판)",u:"1/2판",p:22,c:560,f:24,b:64},
+ {n:"치킨너겟 5조각",u:"1개",p:14,c:230,f:14,b:12},
+ {n:"돈까스(냉동)",u:"1장",p:22,c:450,f:26,b:32},
+ {n:"핫바",u:"1개",p:5,c:130,f:7,b:11.8},
+ {n:"스팸",u:"1/2캔(100g)",p:13,c:310,f:27,b:3.8},
+ {n:"비엔나소시지",u:"5개",p:6,c:150,f:13,b:2.2},
+ {n:"어묵(사각)",u:"1장",p:4,c:65,f:2,b:7.8},
+ {n:"게맛살",u:"3개",p:6,c:80,f:1,b:11.8},
+ {n:"떡국떡",u:"1인분(150g)",p:6,c:300,f:1,b:66.8}
+];
+
 
 var SQ="",SSEL=null,PVIEW=null,MFORM=false,FREQ_CACHE=[],RECO_CACHE=[];
 function todayStr(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
@@ -623,7 +846,8 @@ window.delMyPlan=function(){if(!confirm("내 플랜(E)을 삭제할까요?"))ret
 window.delItem=function(i){var d=diet();var it=d.items[i];if(!it)return;d.p-=it.p;d.c-=it.c;d.f-=(it.f||0);d.b-=(it.b||0);if(d.p<0)d.p=0;if(d.c<0)d.c=0;if(d.f<0)d.f=0;if(d.b<0)d.b=0;d.items.splice(i,1);save();render();};
 
 /* ── 커스텀 음식: 검색 DB 앞에 사용자 등록 음식이 붙는다 ── */
-function allFoods(){return (state.myfoods||[]).concat(FOODDB);}
+var EXTDB=[],EXT_READY=false;
+function allFoods(){return (state.myfoods||[]).concat(FOODDB).concat(FOODDB_BRAND).concat(EXTDB);}
 window.toggleMForm=function(){MFORM=!MFORM;render();};
 window.addMyFood=function(){
  var n=(document.getElementById('mfName').value||"").trim();
@@ -663,10 +887,52 @@ function choseong(s){var out="";for(var i=0;i<s.length;i++){var c=s.charCodeAt(i
 function fdMatch(){var q=SQ.trim().toLowerCase();if(!q)return [];
  var isCho=/^[ㄱ-ㅎ\s]+$/.test(q);var qc=q.replace(/\s/g,"");
  var A=allFoods(),out=[];
- for(var i=0;i<A.length;i++){
-  var hit=isCho?choseong(A[i].n).indexOf(qc)>-1:A[i].n.toLowerCase().indexOf(q)>-1;
-  if(hit){out.push(i);if(out.length>=10)break;}}
+ for(var i=0;i<A.length;i++){var it=A[i],hit;
+  if(isCho){if(it._k===undefined)it._k=choseong(it.n);hit=it._k.indexOf(qc)>-1;}
+  else{if(it._s===undefined)it._s=it.n.toLowerCase();hit=it._s.indexOf(q)>-1;}
+  if(hit){out.push(i);if(out.length>=12)break;}}
  return out;}
+/* 외부 식품 DB(foods-ext.json) 드롭인 로드 — 있으면 검색에 자동 합침(식약처 CSV 변환본 등) */
+(function loadExtDB(){try{fetch("foods-ext.json",{cache:"force-cache"}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){var arr=Array.isArray(j)?j:(j&&j.foods);if(!arr||!arr.length)return;EXTDB=arr;EXT_READY=true;if(state.tab==="fuel")render();}).catch(function(){});}catch(e){}})();
+/* ── 바코드 스캔 (BarcodeDetector + Open Food Facts) ── */
+var BFOUND=null;
+function parseOFF(j,code){
+ if(!j||j.status!==1||!j.product)return null;
+ var pr=j.product,n=pr.nutriments||{};
+ var name=(pr.product_name_ko||pr.product_name||"").trim();
+ if(!name)name="제품 "+code;
+ if(pr.brands){var br=(""+pr.brands).split(",")[0].trim();if(br&&name.indexOf(br)<0)name=br+" "+name;}
+ var u,kcal,pro,carb,fat;
+ if(n["energy-kcal_serving"]!=null&&pr.serving_size){u=(""+pr.serving_size).slice(0,16);kcal=n["energy-kcal_serving"];pro=n["proteins_serving"];carb=n["carbohydrates_serving"];fat=n["fat_serving"];}
+ else{u="100g";kcal=n["energy-kcal_100g"];pro=n["proteins_100g"];carb=n["carbohydrates_100g"];fat=n["fat_100g"];}
+ if(kcal==null||isNaN(kcal))return null;
+ return {n:name,u:u,p:Math.round(pro||0),c:Math.round(kcal),f:Math.round(fat||0),b:Math.round(carb||0)};
+}
+window.scanBarcode=function(){
+ if(!("BarcodeDetector" in window)||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){window.barcodeManual();return;}
+ var ov=document.createElement("div");ov.style.cssText="position:fixed;inset:0;background:#000;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px";
+ var v=document.createElement("video");v.setAttribute("playsinline","");v.muted=true;v.style.cssText="max-width:100%;max-height:66vh;border-radius:10px";
+ var msg=document.createElement("div");msg.style.cssText="color:#fff;font-size:14px;margin-top:14px;text-align:center";msg.textContent="바코드를 화면 중앙에 맞춰주세요";
+ var mrow=document.createElement("div");mrow.style.cssText="display:flex;gap:8px;margin-top:16px";
+ var mbtn=document.createElement("button");mbtn.textContent="번호 직접 입력";mbtn.style.cssText="background:#333;color:#fff;border-radius:8px;padding:10px 18px;font-size:14px";
+ var close=document.createElement("button");close.textContent="닫기";close.style.cssText="background:#fff;color:#000;border-radius:8px;padding:10px 20px;font-size:14px";
+ mrow.appendChild(mbtn);mrow.appendChild(close);
+ ov.appendChild(v);ov.appendChild(msg);ov.appendChild(mrow);document.body.appendChild(ov);
+ var stream=null,stopped=false,det;
+ try{det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});}catch(e){try{det=new BarcodeDetector();}catch(e2){det=null;}}
+ function cleanup(){stopped=true;if(stream)stream.getTracks().forEach(function(t){t.stop();});if(ov.parentNode)ov.parentNode.removeChild(ov);}
+ close.onclick=cleanup;
+ mbtn.onclick=function(){cleanup();window.barcodeManual();};
+ if(!det){cleanup();window.barcodeManual();return;}
+ navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(s){stream=s;v.srcObject=s;v.play();setTimeout(loop,600);}).catch(function(){cleanup();window.barcodeManual();});
+ function loop(){if(stopped)return;det.detect(v).then(function(codes){if(stopped)return;if(codes&&codes.length&&codes[0].rawValue){var code=codes[0].rawValue;cleanup();window.lookupBarcode(code);return;}setTimeout(loop,400);}).catch(function(){if(!stopped)setTimeout(loop,400);});}
+};
+window.barcodeManual=function(){var code=prompt("바코드 번호를 입력하세요 (숫자 8~13자리)");if(!code)return;code=code.trim();if(/^[0-9]{8,13}$/.test(code))window.lookupBarcode(code);else alert("바코드 번호 형식이 올바르지 않아요.");};
+window.lookupBarcode=function(code){BFOUND={loading:true,code:code};if(state.tab!=="fuel"){state.tab="fuel";VDATE=TODAY;}render();
+ fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+".json?fields=product_name,product_name_ko,brands,serving_size,nutriments").then(function(r){return r.json();}).then(function(j){var it=parseOFF(j,code);BFOUND=it?{item:it,code:code}:{notfound:true,code:code};render();}).catch(function(){BFOUND={error:true,code:code};render();});};
+window.clearBarcode=function(){BFOUND=null;render();};
+window.addBarcode=function(m){if(!BFOUND||!BFOUND.item)return;var f=BFOUND.item;BFOUND=null;addItem(f.n+(m!=1?" ×"+m:""),Math.round(f.p*m),Math.round(f.c*m),Math.round(f.f*m),Math.round(f.b*m));};
+window.saveBarcodeFood=function(){if(!BFOUND||!BFOUND.item)return;var f=BFOUND.item;state.myfoods=state.myfoods||[];state.myfoods.unshift({n:f.n,u:f.u,p:f.p,c:f.c,f:f.f,b:f.b});save();alert("내 음식으로 저장했어요. 검색에 ★로 나와요.");};
 function searchResultsHTML(){if(!SQ.trim())return "";var m=fdMatch();if(!m.length)return '<div style="font-size:12px;color:'+MUT+';padding:10px 2px">검색 결과 없음 — 아래 "직접 입력"으로 바로 기록하거나 "내 음식 등록"으로 저장해 두세요</div>';
  var myN=(state.myfoods||[]).length;
  return m.map(function(idx){var f=allFoods()[idx],sel=SSEL===idx,my=idx<myN;return '<button onclick="pickFood('+idx+')" class="row" style="width:100%;justify-content:space-between;background:'+SURF2+';border:1px solid '+(sel?ACC:LINE)+';border-radius:9px;padding:9px 12px;margin-top:6px;text-align:left;color:'+TX+'"><div style="min-width:0">'+(my?'<span style="color:'+ACC+'">★</span> ':'')+'<span style="font-size:13px;font-weight:500">'+esc(f.n)+'</span> <span style="font-size:11px;color:'+MUT+'">'+esc(f.u)+'</span></div><div class="mono row" style="font-size:11px;color:'+ACC+';white-space:nowrap;margin-left:8px">'+f.p+'P · '+f.c+'kcal'+(my?'<span onclick="event.stopPropagation();delMyFood('+idx+')" style="margin-left:8px;color:'+MUT+';padding:1px 6px;border:1px solid '+LINE+';border-radius:6px">×</span>':'')+'</div></button>';}).join("");}
@@ -1004,7 +1270,17 @@ function viewFuel(){var dp=dietPhase(),PG=dp.protein,CG=dp.kcal,d=diet();
   '<div style="display:flex;gap:6px;margin-top:8px"><button onclick="addMyFood()" style="flex:1;background:'+ACC+';color:#1a1206;font-weight:700;border-radius:8px;padding:9px 0;font-size:13px">저장</button>'+
   '<button onclick="toggleMForm()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:9px 0;font-size:13px">취소</button></div></div>'
   :'<button onclick="toggleMForm()" style="width:100%;margin-top:8px;border:1px dashed '+LINE+';color:'+MUT+';border-radius:8px;padding:8px 0;font-size:12px">★ 내 음식 등록'+((state.myfoods||[]).length?' ('+state.myfoods.length+'개 저장됨)':'')+'</button>';
- var search='<div class="card" style="padding:14px;margin-bottom:14px"><input id="foodSearch" value="'+SQ.replace(/"/g,"&quot;")+'" oninput="searchInput(this.value)" placeholder="음식 검색 — 초성도 OK (ㅁㄹㅌ, 소주, 케이크…)" style="width:100%;background:'+SURF2+';border:1px solid '+LINE+';border-radius:9px;color:'+TX+';padding:11px 12px;font-size:14px"><div id="searchRes">'+searchResultsHTML()+'</div><div id="qtyBox">'+qtyHTML()+'</div>'+manual+mform+'</div>';
+ var bcCard="";
+ if(BFOUND){
+  if(BFOUND.loading)bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+ACC+'55"><div class="mono" style="font-size:12px;color:'+ACC+'">바코드 조회 중… ('+BFOUND.code+')</div></div>';
+  else if(BFOUND.notfound||BFOUND.error)bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+CRIT+'55"><div style="font-size:13px">'+(BFOUND.error?"네트워크 오류로 조회 실패":"이 바코드는 Open Food Facts에 등록돼 있지 않아요")+' ('+BFOUND.code+')</div><div style="font-size:11px;color:'+MUT+';margin-top:6px">아래 검색이나 직접 입력으로 기록하세요.</div><div style="display:flex;gap:6px;margin-top:10px"><button onclick="lookupBarcode(\''+BFOUND.code+'\')" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+TX+';border-radius:8px;padding:8px 0;font-size:12px">다시 시도</button><button onclick="clearBarcode()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:8px 0;font-size:12px">닫기</button></div></div>';
+  else if(BFOUND.item){var bf=BFOUND.item;
+   bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+TEAL+'66"><div class="mono" style="font-size:10px;color:'+TEAL+';letter-spacing:.06em">바코드 인식됨 · Open Food Facts</div>'+
+    '<div style="font-size:15px;font-weight:600;margin-top:4px">'+esc(bf.n)+'</div>'+
+    '<div class="mono" style="font-size:12px;color:'+MUT+';margin-top:2px">'+esc(bf.u)+' 기준 · 단백 '+bf.p+' / 탄수 '+bf.b+' / 지방 '+bf.f+'g · '+bf.c+'kcal</div>'+
+    '<div style="display:flex;gap:6px;margin-top:10px">'+[0.5,1,1.5,2].map(function(m){return '<button onclick="addBarcode('+m+')" style="flex:1;background:'+(m==1?ACC:SURF2)+';border:1px solid '+(m==1?ACC:LINE)+';color:'+(m==1?"#1a1206":TX)+';border-radius:8px;padding:9px 0;font-size:13px;font-weight:600">'+m+'×</button>';}).join("")+'</div>'+
+    '<div style="display:flex;gap:6px;margin-top:6px"><button onclick="saveBarcodeFood()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:8px 0;font-size:12px">★ 내 음식으로 저장</button><button onclick="clearBarcode()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:8px 0;font-size:12px">닫기</button></div></div>';}}
+ var search='<div class="card" style="padding:14px;margin-bottom:14px"><button onclick="scanBarcode()" style="width:100%;background:'+SURF2+';border:1px solid '+LINE+';color:'+TX+';border-radius:9px;padding:10px 0;font-size:13px;font-weight:600;margin-bottom:8px">📷 바코드 스캔 (편의점·가공식품)</button><input id="foodSearch" value="'+SQ.replace(/"/g,"&quot;")+'" oninput="searchInput(this.value)" placeholder="음식 검색 — 초성도 OK (ㅁㄹㅌ, 소주, 케이크…)" style="width:100%;background:'+SURF2+';border:1px solid '+LINE+';border-radius:9px;color:'+TX+';padding:11px 12px;font-size:14px"><div id="searchRes">'+searchResultsHTML()+'</div><div id="qtyBox">'+qtyHTML()+'</div>'+manual+mform+'</div>';
  /* 물 · 영양제 데일리 체크 (필라이즈 라이트) */
  var dy=dailyOf(VDATE),wCups=dy.w||0;
  var suppChips=(state.supps||[]).map(function(s2,i){var on=!!dy.s[s2];return '<button onclick="toggleSupp('+i+')" style="border-radius:8px;padding:7px 10px;font-size:12px;font-weight:600;background:'+(on?TEAL:SURF2)+';color:'+(on?'#0E1116':MUT)+';border:1px solid '+(on?TEAL:LINE)+'">'+(on?'✓ ':'')+esc(s2)+'<span onclick="event.stopPropagation();delSupp('+i+')" style="margin-left:7px;color:'+(on?'#0E1116':MUT)+';opacity:.7">×</span></button>';}).join("");
@@ -1033,7 +1309,7 @@ function viewFuel(){var dp=dietPhase(),PG=dp.protein,CG=dp.kcal,d=diet();
    '<div style="height:8px;background:'+SURF2+';border-radius:5px;overflow:hidden"><div style="width:'+Math.min(100,(d.c/CG)*100)+'%;height:100%;background:'+(d.c>CG?CRIT:TEAL)+'"></div></div>'+
    bar('탄수화물',d.b||0,carbT,ACC)+bar('지방',d.f||0,fatT,'#C9A227')+
    '<div style="font-size:10px;color:'+MUT+';margin-top:8px">목표 배분: 단백질 '+PG+'g 고정 · 지방 25% · 탄수 나머지. 매크로 없는 옛 기록은 0으로 집계돼요.</div></div>';})()+
-  weekBudgetHTML()+recoHTML()+hydro+log+search+rec+freq+
+  weekBudgetHTML()+recoHTML()+hydro+log+bcCard+search+rec+freq+
   '<div class="row" style="justify-content:space-between;margin:14px 0 10px"><span style="font-size:13px;color:'+MUT+'">빠른 추가</span></div>'+
   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+foods+'</div></div>';}
 
