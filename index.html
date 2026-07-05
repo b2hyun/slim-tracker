@@ -753,7 +753,7 @@ function anyDone(d){var w=state.workout[d];if(!w)return false;for(var k in w){if
 function yIso(){var y=new Date();y.setDate(y.getDate()-1);return isoDate(y);}
 function missedInfo(){
  var yi=yIso();
- var key=trainPhase().sched[(DOW+6)%7];
+ var key=curSched()[(DOW+6)%7];
  if(!key||key==="rest")return null;
  if(anyDone(yi))return null;
  return {key:key,date:yi};}
@@ -773,7 +773,10 @@ window.toggleSupp=function(i){var d=dailyOf(VDATE);var k=state.supps[i];if(!k)re
 window.addSupp=function(){var el=document.getElementById('suppIn');var v=(el&&el.value||"").trim();if(!v)return;state.supps=state.supps||[];if(state.supps.indexOf(v)>-1)return;state.supps.push(v);save();render();};
 window.delSupp=function(i){if(!confirm("'"+state.supps[i]+"' 항목을 삭제할까요?"))return;state.supps.splice(i,1);save();render();};
 function swapDecided(){return state.swap&&state.swap.date===TODAY;}
-function activeKey(){var sk=trainPhase().sched[DOW];return (swapDecided()&&state.swap.key)?state.swap.key:sk;}
+function curSched(){var sc=trainPhase().sched;
+ if(state.settings&&state.settings.week6&&sc[6]==="rest"){var c={};for(var k in sc)c[k]=sc[k];c[6]="push";return c;}
+ return sc;}
+function activeKey(){var sk=curSched()[DOW];return (swapDecided()&&state.swap.key)?state.swap.key:sk;}
 window.setSwap=function(key){state.swap={date:TODAY,key:key};SWCH=false;save();render();};
 window.clearSwap=function(){state.swap={date:TODAY,key:null};SWCH=false;save();render();};
 window.toggleSwch=function(){SWCH=!SWCH;render();};
@@ -991,8 +994,9 @@ window.importData=function(ev){var f=ev.target.files[0];if(!f)return;var rd=new 
 
 /* ── 체크리스트 · 설정 ── */
 window.toggleCheck=function(i){state.checks=state.checks||{};state.checks[i]=!state.checks[i];save();render();};
-window.saveSettings=function(){var s={};["sGoal","sKcal","sProtein"].forEach(function(id){var v=parseFloat(document.getElementById(id).value);if(!isNaN(v)){if(id==="sGoal")s.goal=v;if(id==="sKcal")s.kcal=v;if(id==="sProtein")s.protein=v;}});state.settings=s;save();render();};
-window.clearSettings=function(){state.settings={};save();render();};
+window.saveSettings=function(){var s={};["sGoal","sKcal","sProtein"].forEach(function(id){var v=parseFloat(document.getElementById(id).value);if(!isNaN(v)){if(id==="sGoal")s.goal=v;if(id==="sKcal")s.kcal=v;if(id==="sProtein")s.protein=v;}});if(state.settings&&state.settings.week6)s.week6=true;state.settings=s;save();render();};
+window.toggleWeek6=function(){state.settings=state.settings||{};state.settings.week6=!state.settings.week6;save();render();};
+window.clearSettings=function(){var w6=state.settings&&state.settings.week6;state.settings=w6?{week6:true}:{};save();render();};
 window.resetAll=function(){
  if(!confirm("모든 기록·설정을 지우고 처음부터 시작할까요? 되돌릴 수 없어요."))return;
  if(!confirm("정말로요? 내보내기로 백업했는지 확인하세요."))return;
@@ -1133,7 +1137,7 @@ function paceProjection(){var dp=dietPhase();
  var diff=Math.round((proj-new Date(dp.until))/864e5);
  return {proj:isoDate(proj),diff:diff,perWk:perWk};}
 /* ── 오늘 탭 ── */
-function viewToday(){var tp=trainPhase(),dp=dietPhase(),schedKey=tp.sched[DOW],key=activeKey(),dl=dayLog();
+function viewToday(){var tp=trainPhase(),dp=dietPhase(),schedKey=curSched()[DOW],key=activeKey(),dl=dayLog();
  var streak=calcStreak();
  var swapped=key!==schedKey;
  var banner='<div class="card" style="padding:12px 14px;margin-bottom:14px;border-color:'+ACC+'33">'+
@@ -1414,7 +1418,7 @@ function viewProgress(){
   '<div style="display:flex;gap:8px;margin-top:8px">'+
   '<div style="flex:1"><div style="font-size:11px;color:'+MUT+';margin-bottom:6px">오늘 걸음 수 (하루 마무리에)</div><input id="msteps" inputmode="numeric" placeholder="10000" value="'+((state.daily[TODAY]&&state.daily[TODAY].st)||'')+'" style="width:100%;background:'+SURF2+';border:1px solid '+LINE+';border-radius:9px;color:'+TX+';padding:10px;font-size:15px;text-align:center"></div>'+
   '<button onclick="addMetric()" style="align-self:flex-end;background:'+ACC+';border-radius:9px;color:#1a1206;font-weight:700;padding:10px 16px;font-size:14px">기록</button></div>'+
-  '<div style="font-size:11px;color:'+MUT+';margin-top:8px">허리는 주 1회 배꼽 높이 · 인바디는 2~4주에 한 번, 같은 시간대(아침 공복)에 재야 비교가 돼요. 전략 밴드 = 체지방 11~14%.</div></div>'+
+  '<div style="font-size:11px;color:'+MUT+';margin-top:8px"><b style="color:'+TX+'">체중은 매일 아침 기상 직후·화장실 다녀와서·먹기 전</b>에 재세요. 밥·물·운동 뒤엔 1~2kg씩 출렁여서 그날 숫자는 의미가 없고, 앱은 7일 평균으로만 판정해요. 허리는 주 1회 배꼽 높이 · 인바디는 2~4주에 한 번 같은 조건에서. 전략 밴드 = 체지방 11~14%.</div></div>'+
   chart()+waistChart()+empty+bfCard+hist+week+liftSection+photoCard+summary+backup+'</div>';}
 
 /* ── 플랜 탭 (훈련 단계 + 로드맵 + 근력 마일스톤 + 체크리스트 + 설정) ── */
@@ -1450,6 +1454,7 @@ function viewPlan(){var ci=trainPhaseIdx(),dpb=dietPhaseBase(),s=state.settings|
   '<div style="flex:1"><div style="font-size:11px;color:'+MUT+';margin-bottom:5px">목표 체중 kg</div>'+inp("sGoal",dpb.goal.toFixed(1),s.goal)+'</div>'+
   '<div style="flex:1"><div style="font-size:11px;color:'+MUT+';margin-bottom:5px">일일 칼로리</div>'+inp("sKcal",dpb.kcal,s.kcal)+'</div>'+
   '<div style="flex:1"><div style="font-size:11px;color:'+MUT+';margin-bottom:5px">단백질 g</div>'+inp("sProtein",dpb.protein,s.protein)+'</div></div>'+
+  (function(){var w6=state.settings&&state.settings.week6;return '<button onclick="toggleWeek6()" style="width:100%;margin-bottom:10px;background:'+(w6?ACC:SURF2)+';border:1px solid '+(w6?ACC:LINE)+';color:'+(w6?"#1a1206":TX)+';border-radius:9px;padding:11px 0;font-size:13px;font-weight:600">'+(w6?"✓ 주 6일 훈련 — 토요일도 운동 (일요일만 휴식)":"주 5일 훈련 — 주말 휴식 (탭하면 토요일 추가)")+'</button>';})()+
   '<div style="display:flex;gap:8px"><button onclick="saveSettings()" style="flex:1;background:'+ACC+';color:#1a1206;font-weight:700;border-radius:9px;padding:10px 0;font-size:13px">설정 저장</button>'+
   '<button onclick="clearSettings()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+TX+';border-radius:9px;padding:10px 0;font-size:13px">기본값으로</button></div>'+
   '<button onclick="resetAll()" style="width:100%;margin-top:8px;background:transparent;border:1px solid '+CRIT+'55;color:'+CRIT+';border-radius:9px;padding:10px 0;font-size:13px">전체 데이터 초기화</button></div>';
