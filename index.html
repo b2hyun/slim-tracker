@@ -1241,16 +1241,29 @@ function viewToday(){var tp=trainPhase(),dp=dietPhase(),schedKey=curSched()[DOW]
  '<div style="font-size:11px;color:'+MUT+';margin-top:12px;line-height:1.5">물 2L 이상 · 크레아틴 5g 매일 · 매일 1만~1.2만보 · 마지막 세트는 1~2회 남기고 멈추기(RPE 8~9)'+(dp.cut?' · 커팅 중엔 중량 "유지"가 곧 승리':'')+'</div></div>';}
 
 /* ── 연료 탭 ── */
+var RECO_OFF=0;
+window.recoCycle=function(){RECO_OFF++;render();};
 function recoHTML(){var dp=dietPhase(),d=diet();
  var needP=dp.protein-d.p,needC=dp.kcal-d.c;
  RECO_CACHE=[];
  if(needP<=0||needC<=80||!d.items.length)return "";
- var pool=allFoods().filter(function(f){return f.c<=needC&&f.p>=6;});
- pool.sort(function(a,b){return (b.p/Math.max(b.c,1))-(a.p/Math.max(a.c,1));});
- var seen={};for(var i=0;i<pool.length&&RECO_CACHE.length<3;i++){if(seen[pool[i].n])continue;seen[pool[i].n]=1;RECO_CACHE.push(pool[i]);}
- if(!RECO_CACHE.length)return "";
- var rows=RECO_CACHE.map(function(f,i){return '<button onclick="addReco('+i+')" class="row" style="width:100%;justify-content:space-between;background:'+SURF2+';border:1px solid '+LINE+';border-radius:9px;padding:9px 12px;margin-top:6px;text-align:left;color:'+TX+'"><span style="font-size:13px">'+esc(f.n)+' <span style="font-size:11px;color:'+MUT+'">'+esc(f.u)+'</span></span><span class="mono" style="font-size:11px;color:'+TEAL+'">+'+f.p+'P · '+f.c+'kcal</span></button>';}).join("");
- return '<div class="card" style="padding:14px;margin-bottom:14px;border-color:'+TEAL+'44"><div class="mono" style="font-size:11px;color:'+TEAL+';letter-spacing:.06em">남은 목표 채우기 — 단백질 '+needP+'g · 여유 '+needC+'kcal</div>'+rows+'</div>';}
+ var byDensity=function(a,b){return (b.p/Math.max(b.c,1))-(a.p/Math.max(a.c,1));};
+ var fit=function(f,minC){return f&&f.p>=8&&f.c<=needC&&(!minC||f.c>=minC);};
+ /* 1) 내가 실제 먹는 것(자주 먹는 + 내 음식) 우선 → 2) 일반 DB 고단백(잡템 제외: 40kcal↑) */
+ var personal=[];
+ freqFoods().forEach(function(f){if(fit(f,0))personal.push(f);});
+ (state.myfoods||[]).forEach(function(f){if(fit(f,0))personal.push(f);});
+ personal.sort(byDensity);
+ var db=allFoods().filter(function(f){return fit(f,40);}).sort(byDensity);
+ var seen={},cand=[];
+ personal.concat(db).forEach(function(f){if(!seen[f.n]){seen[f.n]=1;cand.push(f);}});
+ cand=cand.slice(0,24);
+ if(!cand.length)return "";
+ var n=Math.min(3,cand.length);
+ for(var j=0;j<n;j++)RECO_CACHE.push(cand[((RECO_OFF*3)+j)%cand.length]);
+ var rows=RECO_CACHE.map(function(f,i){return '<button onclick="addReco('+i+')" class="row" style="width:100%;justify-content:space-between;background:'+SURF2+';border:1px solid '+LINE+';border-radius:9px;padding:9px 12px;margin-top:6px;text-align:left;color:'+TX+'"><span style="font-size:13px">'+esc(f.n)+' <span style="font-size:11px;color:'+MUT+'">'+esc(f.u||"")+'</span></span><span class="mono" style="font-size:11px;color:'+TEAL+'">+'+f.p+'P · '+f.c+'kcal</span></button>';}).join("");
+ var cyc=cand.length>3?'<button onclick="recoCycle()" style="width:100%;margin-top:8px;background:transparent;border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:8px 0;font-size:12px">다른 추천 보기 ↻</button>':'';
+ return '<div class="card" style="padding:14px;margin-bottom:14px;border-color:'+TEAL+'44"><div class="mono" style="font-size:11px;color:'+TEAL+';letter-spacing:.06em">남은 목표 채우기 — 단백질 '+needP+'g · 여유 '+needC+'kcal</div>'+rows+cyc+'</div>';}
 function viewFuel(){var dp=dietPhase(),PG=dp.protein,CG=dp.kcal,d=diet();
  var isToday=VDATE===TODAY;
  var dLabel=isToday?"오늘":(daysSince(VDATE)===1?"어제":VDATE.slice(5).replace("-","/"));
