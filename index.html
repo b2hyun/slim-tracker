@@ -704,9 +704,9 @@ function idbOpen(cb){try{var r=indexedDB.open("bodytrack",1);r.onupgradeneeded=f
 function idbSet(k,v,cb){idbOpen(function(db){if(!db){if(cb)cb(false);return;}try{var tx=db.transaction("kv","readwrite");tx.objectStore("kv").put(v,k);tx.oncomplete=function(){if(cb)cb(true);};tx.onerror=function(){if(cb)cb(false);};}catch(e){if(cb)cb(false);}});}
 function idbGet(k,cb){idbOpen(function(db){if(!db){cb(null);return;}try{var rq=db.transaction("kv").objectStore("kv").get(k);rq.onsuccess=function(){cb(rq.result);};rq.onerror=function(){cb(null);};}catch(e){cb(null);}});}
 function savePhotos(cb){idbSet("photos",state.photos||[],cb);}
-var state={mode:"home",workout:{},diet:{},metrics:[],tab:"today",plan:"A",photos:[],lastBackup:null,checks:{},settings:{},myfoods:[],myplan:[],swap:null,daily:{},supps:["크레아틴 5g","종합비타민","오메가3"],deload:null};
+var state={mode:"home",workout:{},diet:{},metrics:[],tab:"today",plan:"A",photos:[],lastBackup:null,checks:{},settings:{},myfoods:[],myplan:[],swap:null,daily:{},supps:["크레아틴 5g","종합비타민","오메가3"],deload:null,barcodes:{}};
 var SAVE_FAILED=false;
-function save(){try{localStorage.setItem(LKEY,JSON.stringify({mode:state.mode,workout:state.workout,diet:state.diet,metrics:state.metrics,plan:state.plan,lastBackup:state.lastBackup,checks:state.checks,settings:state.settings,myfoods:state.myfoods,myplan:state.myplan,swap:state.swap,daily:state.daily,supps:state.supps,deload:state.deload}));SAVE_FAILED=false;return true;}catch(e){if(!SAVE_FAILED){SAVE_FAILED=true;try{alert("⚠️ 저장 공간이 가득 차 방금 기록이 저장되지 않았어요.\n진척 탭 → 내보내기로 백업한 뒤, 사진 기록에서 오래된 사진을 지워 공간을 확보하세요.");}catch(_e){}}return false;}}
+function save(){try{localStorage.setItem(LKEY,JSON.stringify({mode:state.mode,workout:state.workout,diet:state.diet,metrics:state.metrics,plan:state.plan,lastBackup:state.lastBackup,checks:state.checks,settings:state.settings,myfoods:state.myfoods,myplan:state.myplan,swap:state.swap,daily:state.daily,supps:state.supps,deload:state.deload,barcodes:state.barcodes}));SAVE_FAILED=false;return true;}catch(e){if(!SAVE_FAILED){SAVE_FAILED=true;try{alert("⚠️ 저장 공간이 가득 차 방금 기록이 저장되지 않았어요.\n진척 탭 → 내보내기로 백업한 뒤, 사진 기록에서 오래된 사진을 지워 공간을 확보하세요.");}catch(_e){}}return false;}}
 function migrateBP(entries){
  if(!entries)return;
  var have={};state.metrics.forEach(function(m){have[m.date]=true;});
@@ -933,13 +933,25 @@ window.scanBarcode=function(){
 };
 window.barcodeManual=function(){var code=prompt("바코드 번호를 입력하세요 (숫자 8~13자리)");if(!code)return;code=code.trim();if(/^[0-9]{8,13}$/.test(code))window.lookupBarcode(code);else alert("바코드 번호 형식이 올바르지 않아요.");};
 window.lookupBarcode=function(code){
+ state.barcodes=state.barcodes||{};
+ if(state.tab!=="fuel"){state.tab="fuel";VDATE=TODAY;}
+ /* 내 바코드 DB 우선 — 있으면 즉시·오프라인 */
+ if(state.barcodes[code]){BFOUND={item:state.barcodes[code],code:code,mine:true};render();return;}
  if(!(state.settings&&state.settings.offConsent)){
   if(!confirm("바코드 조회는 제품 바코드 번호를 외부 서버(Open Food Facts)로 보냅니다.\n나머지 기록은 폰에만 저장돼요. 계속할까요?")){return;}
   state.settings=state.settings||{};state.settings.offConsent=true;save();
  }
- BFOUND={loading:true,code:code};if(state.tab!=="fuel"){state.tab="fuel";VDATE=TODAY;}render();
- fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+".json?fields=product_name,product_name_ko,brands,serving_size,nutriments").then(function(r){return r.json();}).then(function(j){var it=parseOFF(j,code);BFOUND=it?{item:it,code:code}:{notfound:true,code:code};render();}).catch(function(){BFOUND={error:true,code:code};render();});};
+ BFOUND={loading:true,code:code};render();
+ fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+".json?fields=product_name,product_name_ko,brands,serving_size,nutriments").then(function(r){return r.json();}).then(function(j){var it=parseOFF(j,code);if(it){state.barcodes[code]=it;save();BFOUND={item:it,code:code};}else BFOUND={notfound:true,code:code};render();}).catch(function(){BFOUND={error:true,code:code};render();});};
 window.clearBarcode=function(){BFOUND=null;render();};
+window.saveBarcodeManual=function(code){
+ var g=function(id){var el=document.getElementById(id);var v=parseFloat(el&&el.value);return isNaN(v)?0:v;};
+ var ne=document.getElementById('bcN');var n=(ne&&ne.value||"").trim();var c=g('bcC');
+ if(!n||!c){alert("제품 이름과 칼로리는 넣어주세요.");return;}
+ var ue=document.getElementById('bcU');var u=(ue&&ue.value||"").trim()||"1개";
+ var item={n:n,u:u,p:Math.round(g('bcP')),c:Math.round(c),f:Math.round(g('bcF')),b:Math.round(g('bcB'))};
+ state.barcodes=state.barcodes||{};state.barcodes[code]=item;
+ BFOUND=null;addItem(item.n,item.p,item.c,item.f,item.b);};
 window.addBarcode=function(m){if(!BFOUND||!BFOUND.item)return;var f=BFOUND.item;BFOUND=null;addItem(f.n+(m!=1?" ×"+m:""),Math.round(f.p*m),Math.round(f.c*m),Math.round(f.f*m),Math.round(f.b*m));};
 window.saveBarcodeFood=function(){if(!BFOUND||!BFOUND.item)return;var f=BFOUND.item;state.myfoods=state.myfoods||[];state.myfoods.unshift({n:f.n,u:f.u,p:f.p,c:f.c,f:f.f,b:f.b});save();alert("내 음식으로 저장했어요. 검색에 ★로 나와요.");};
 function searchResultsHTML(){if(!SQ.trim())return "";var m=fdMatch();if(!m.length)return '<div style="font-size:12px;color:'+MUT+';padding:10px 2px">검색 결과 없음 — 아래 "직접 입력"으로 바로 기록하거나 "내 음식 등록"으로 저장해 두세요</div>';
@@ -968,7 +980,7 @@ window.addMetric=function(){var g=function(id){var el=document.getElementById(id
 window.delMetric=function(d){if(!confirm(d+" 신체 기록을 삭제할까요?"))return;state.metrics=state.metrics.filter(function(x){return x.date!==d;});save();render();};
 
 /* ── 내보내기 / 가져오기 (통합·SLIM·TRACK·바프 백업 3종 모두 지원) ── */
-window.exportData=function(){state.lastBackup=TODAY;save();var blob=new Blob([JSON.stringify({app:"bodytrack",v:1,mode:state.mode,workout:state.workout,diet:state.diet,metrics:state.metrics,plan:state.plan,photos:state.photos,lastBackup:state.lastBackup,checks:state.checks,settings:state.settings,myfoods:state.myfoods,myplan:state.myplan,daily:state.daily,supps:state.supps,deload:state.deload},null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="bodytrack-"+TODAY+".json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);render();};
+window.exportData=function(){state.lastBackup=TODAY;save();var blob=new Blob([JSON.stringify({app:"bodytrack",v:1,mode:state.mode,workout:state.workout,diet:state.diet,metrics:state.metrics,plan:state.plan,photos:state.photos,lastBackup:state.lastBackup,checks:state.checks,settings:state.settings,myfoods:state.myfoods,myplan:state.myplan,daily:state.daily,supps:state.supps,deload:state.deload,barcodes:state.barcodes},null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="bodytrack-"+TODAY+".json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);render();};
 window.exportCSV=function(){
  var days={};state.metrics.forEach(function(m){days[m.date]=1;});
  Object.keys(state.diet).forEach(function(d){if(state.diet[d]&&state.diet[d].items&&state.diet[d].items.length)days[d]=1;});
@@ -992,7 +1004,7 @@ window.importData=function(ev){var f=ev.target.files[0];if(!f)return;var rd=new 
  }else if(o&&o.workout!==undefined&&o.diet!==undefined){ /* SLIM·TRACK 또는 통합 백업 */
   state.workout=o.workout||{};state.diet=o.diet||{};state.metrics=o.metrics||[];state.mode=o.mode||"home";state.plan=o.plan||"A";state.photos=o.photos||[];savePhotos();state.lastBackup=o.lastBackup||null;
   if(o.checks)state.checks=o.checks;if(o.settings)state.settings=o.settings;
-  if(o.myfoods)state.myfoods=o.myfoods;if(o.myplan)state.myplan=o.myplan;
+  if(o.myfoods)state.myfoods=o.myfoods;if(o.myplan)state.myplan=o.myplan;if(o.barcodes)state.barcodes=o.barcodes;
   if(o.daily)state.daily=o.daily;if(o.supps)state.supps=o.supps;if(o.deload!==undefined)state.deload=o.deload;
   save();render();
  }else{alert("형식이 맞지 않는 파일이에요.");}
@@ -1305,9 +1317,16 @@ function viewFuel(){var dp=dietPhase(),PG=dp.protein,CG=dp.kcal,d=diet();
  var bcCard="";
  if(BFOUND){
   if(BFOUND.loading)bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+ACC+'55"><div class="mono" style="font-size:12px;color:'+ACC+'">바코드 조회 중… ('+BFOUND.code+')</div></div>';
-  else if(BFOUND.notfound||BFOUND.error)bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+CRIT+'55"><div style="font-size:13px">'+(BFOUND.error?"네트워크 오류로 조회 실패":"이 바코드는 Open Food Facts에 등록돼 있지 않아요")+' ('+BFOUND.code+')</div><div style="font-size:11px;color:'+MUT+';margin-top:6px">아래 검색이나 직접 입력으로 기록하세요.</div><div style="display:flex;gap:6px;margin-top:10px"><button onclick="lookupBarcode(\''+BFOUND.code+'\')" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+TX+';border-radius:8px;padding:8px 0;font-size:12px">다시 시도</button><button onclick="clearBarcode()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:8px 0;font-size:12px">닫기</button></div></div>';
+  else if(BFOUND.notfound||BFOUND.error){var bmi=function(id,ph){return '<input id="'+id+'" inputmode="decimal" placeholder="'+ph+'" style="flex:1;min-width:0;background:'+SURF2+';border:1px solid '+LINE+';border-radius:8px;color:'+TX+';padding:9px 6px;font-size:12px;text-align:center">';};
+   bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+ACC+'55"><div style="font-size:13px">'+(BFOUND.error?"네트워크 오류 — 아래에 직접 넣어도 돼요":"이 제품은 아직 DB에 없어요")+' <span class="mono" style="font-size:11px;color:'+MUT+'">('+BFOUND.code+')</span></div>'+
+   '<div style="font-size:11px;color:'+TEAL+';margin-top:6px">여기 한 번만 넣으면 <b>다음 스캔부터 자동으로</b> 떠요 (내 바코드로 저장).</div>'+
+   '<input id="bcN" placeholder="제품 이름 (예: 신라면 큰사발)" style="width:100%;background:'+SURF2+';border:1px solid '+LINE+';border-radius:8px;color:'+TX+';padding:9px 10px;font-size:13px;margin-top:8px">'+
+   '<div style="display:flex;gap:6px;margin-top:6px">'+bmi("bcU","단위(1개)")+bmi("bcP","단백g")+bmi("bcB","탄수g")+bmi("bcF","지방g")+bmi("bcC","kcal")+'</div>'+
+   '<div style="display:flex;gap:6px;margin-top:8px"><button onclick="saveBarcodeManual(\''+BFOUND.code+'\')" style="flex:2;background:'+ACC+';color:#1a1206;font-weight:700;border-radius:8px;padding:9px 0;font-size:13px">저장하고 오늘 기록</button>'+
+   (BFOUND.error?'<button onclick="lookupBarcode(\''+BFOUND.code+'\')" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+TX+';border-radius:8px;padding:9px 0;font-size:12px">재시도</button>':'')+
+   '<button onclick="clearBarcode()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+MUT+';border-radius:8px;padding:9px 0;font-size:12px">닫기</button></div></div>';}
   else if(BFOUND.item){var bf=BFOUND.item;
-   bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+TEAL+'66"><div class="mono" style="font-size:10px;color:'+TEAL+';letter-spacing:.06em">바코드 인식됨 · Open Food Facts</div>'+
+   bcCard='<div class="card" style="padding:14px 16px;margin-bottom:14px;border-color:'+TEAL+'66"><div class="mono" style="font-size:10px;color:'+TEAL+';letter-spacing:.06em">'+(BFOUND.mine?"내 바코드 · 저장된 제품":"바코드 인식됨 · Open Food Facts")+'</div>'+
     '<div style="font-size:15px;font-weight:600;margin-top:4px">'+esc(bf.n)+'</div>'+
     '<div class="mono" style="font-size:12px;color:'+MUT+';margin-top:2px">'+esc(bf.u)+' 기준 · 단백 '+bf.p+' / 탄수 '+bf.b+' / 지방 '+bf.f+'g · '+bf.c+'kcal</div>'+
     '<div style="display:flex;gap:6px;margin-top:10px">'+[0.5,1,1.5,2].map(function(m){return '<button onclick="addBarcode('+m+')" style="flex:1;background:'+(m==1?ACC:SURF2)+';border:1px solid '+(m==1?ACC:LINE)+';color:'+(m==1?"#1a1206":TX)+';border-radius:8px;padding:9px 0;font-size:13px;font-weight:600">'+m+'×</button>';}).join("")+'</div>'+
