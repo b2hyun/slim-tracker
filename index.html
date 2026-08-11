@@ -739,10 +739,22 @@ idbGet("photos",function(ph){
 function trainPhaseIdx(){var t=new Date(),idx=0;for(var i=0;i<TPHASES.length;i++){if(TPHASES[i].start<=t)idx=i;}return idx;}
 function trainPhase(){return TPHASES[trainPhaseIdx()];}
 function dietPhaseBase(){for(var i=0;i<DPHASES.length;i++){if(TODAY<=DPHASES[i].until)return DPHASES[i];}return DPHASES[DPHASES.length-1];}
+function latestWeight(){var ms=state.metrics.filter(function(m){return m.weight!=null;});return ms.length?ms[ms.length-1].weight:null;}
 function dietPhase(){var b=dietPhaseBase(),s=state.settings||{};
- return {name:b.name,until:b.until,cut:b.cut,startRef:b.startRef,
-  goal:s.goal!=null?s.goal:b.goal,kcal:s.kcal!=null?s.kcal:b.kcal,protein:s.protein!=null?s.protein:b.protein};}
-function dDay(){return Math.max(0,Math.ceil((new Date(dietPhase().until)-new Date(TODAY))/864e5));}
+ var goal=s.goal!=null?s.goal:b.goal,kcal=s.kcal!=null?s.kcal:b.kcal,protein=s.protein!=null?s.protein:b.protein;
+ var name=b.name,until=b.until,cut=b.cut,startRef=b.startRef,hold=false;
+ /* 복근 나올 때까지 커팅 연장: 목표(기본 72.5kg) 도달 전엔 날짜와 무관하게 커팅 유지 */
+ if(s.holdCut){
+  var tgt=s.goal!=null?s.goal:72.5;var last=latestWeight();
+  if(last==null||last>tgt+0.15){
+   name="복근 커팅 (연장) 🔥";cut=true;hold=true;goal=tgt;until="2027-12-31";
+   if(s.kcal==null)kcal=1800;if(s.protein==null)protein=175;
+   var ws=state.metrics.filter(function(m){return m.weight!=null;}).map(function(m){return m.weight;});
+   startRef=ws.length?Math.max.apply(null,ws):(tgt+6);
+  }
+ }
+ return {name:name,until:until,cut:cut,startRef:startRef,goal:goal,kcal:kcal,protein:protein,hold:hold};}
+function dDay(){var dp=dietPhase();if(dp.hold)return null;return Math.max(0,Math.ceil((new Date(dp.until)-new Date(TODAY))/864e5));}
 function blockNo(){var wk=Math.floor((new Date()-START)/(7*864e5));return Math.max(1,Math.floor(wk/2)+1);}
 function overallPct(){return Math.max(0,Math.min(1,(new Date()-START)/(END-START)));}
 var PHOTO_MAX=200;
@@ -1012,9 +1024,10 @@ window.importData=function(ev){var f=ev.target.files[0];if(!f)return;var rd=new 
 
 /* ── 체크리스트 · 설정 ── */
 window.toggleCheck=function(i){state.checks=state.checks||{};state.checks[i]=!state.checks[i];save();render();};
-window.saveSettings=function(){var s={};["sGoal","sKcal","sProtein"].forEach(function(id){var v=parseFloat(document.getElementById(id).value);if(!isNaN(v)){if(id==="sGoal")s.goal=v;if(id==="sKcal")s.kcal=v;if(id==="sProtein")s.protein=v;}});if(state.settings&&state.settings.week6)s.week6=true;state.settings=s;save();render();};
+window.saveSettings=function(){var s={};["sGoal","sKcal","sProtein"].forEach(function(id){var v=parseFloat(document.getElementById(id).value);if(!isNaN(v)){if(id==="sGoal")s.goal=v;if(id==="sKcal")s.kcal=v;if(id==="sProtein")s.protein=v;}});if(state.settings){if(state.settings.week6)s.week6=true;if(state.settings.holdCut)s.holdCut=true;}state.settings=s;save();render();};
 window.toggleWeek6=function(){state.settings=state.settings||{};state.settings.week6=!state.settings.week6;save();render();};
-window.clearSettings=function(){var w6=state.settings&&state.settings.week6;state.settings=w6?{week6:true}:{};save();render();};
+window.toggleHoldCut=function(){state.settings=state.settings||{};if(state.settings.holdCut){if(!confirm("커팅 연장을 끄면 날짜 기준 단계(벌크 등)로 돌아가요. 끌까요?"))return;state.settings.holdCut=false;}else{if(!confirm("복근(목표 체중)까지 커팅을 연장할까요?\n날짜가 지나도 벌크로 자동 전환되지 않고, 목표 도달 시 자동 해제돼요.\n(목표 체중은 설정에서 바꿀 수 있어요, 기본 72.5kg)"))return;state.settings.holdCut=true;}save();render();};
+window.clearSettings=function(){var o=state.settings||{},k={};if(o.week6)k.week6=true;if(o.holdCut)k.holdCut=true;state.settings=k;save();render();};
 window.resetAll=function(){
  if(!confirm("모든 기록·설정을 지우고 처음부터 시작할까요? 되돌릴 수 없어요."))return;
  if(!confirm("정말로요? 내보내기로 백업했는지 확인하세요."))return;
@@ -1062,7 +1075,7 @@ function coachSignals(){var dp=dietPhase(),out=[],cut=dp.cut;
  return out;}
 function summaryText(){var win=recentDays(14),tp=trainPhase(),dp=dietPhase(),L=[];
  L.push("[바프·트랙 2주 점검] "+tp.id+" "+tp.name+" · "+dp.name+" · 블록 "+blockNo());
- L.push("기간: "+win[13]+" ~ "+win[0]+" · 목표 "+dp.goal.toFixed(1)+"kg ("+dp.until+"까지)");
+ L.push("기간: "+win[13]+" ~ "+win[0]+" · 목표 "+dp.goal.toFixed(1)+"kg"+(dp.hold?" (복근까지 커팅 연장)":" ("+dp.until+"까지)"));
  var ms=state.metrics.filter(function(m){return win.indexOf(m.date)>-1;}).sort(function(a,b){return a.date.localeCompare(b.date);});
  if(ms.length){var f=ms[0],l=ms[ms.length-1];var wl=(f.weight!=null&&l.weight!=null)?(" 체중 "+f.weight+"→"+l.weight+"kg"):"";var wa=(f.waist!=null&&l.waist!=null)?(", 허리 "+f.waist+"→"+l.waist+"cm"):"";var bfl=(f.bf!=null&&l.bf!=null)?(", 체지방 "+f.bf+"→"+l.bf+"%"):"";L.push("몸:"+wl+wa+bfl);}else{L.push("몸: 기록 없음");}
  KEYLIFTS.forEach(function(k){var all=liftHist(k[0]);var inw=all.filter(function(x){return win.indexOf(x.date)>-1;});if(!inw.length)return;var latest=inw[inw.length-1].w;var base=latest;for(var i=all.length-1;i>=0;i--){if(all[i].date<win[13]){base=all[i].w;break;}}if(base===latest&&inw.length>1)base=inw[0].w;var chg=Math.round((latest-base)*10)/10;L.push("· "+k[1]+": "+base+"→"+latest+"kg"+(chg>0?(" (+"+chg+")"):(chg<0?(" ("+chg+")"):"")));});
@@ -1160,7 +1173,7 @@ function paceProjection(){var dp=dietPhase();
  if(!right)return {stall:true,perWk:wt.perWk};
  var weeks=remain/Math.abs(wt.perWk);
  var proj=new Date(TODAY);proj.setDate(proj.getDate()+Math.round(weeks*7));
- var diff=Math.round((proj-new Date(dp.until))/864e5);
+ var diff=dp.hold?null:Math.round((proj-new Date(dp.until))/864e5);
  return {proj:isoDate(proj),diff:diff,perWk:wt.perWk};}
 /* ── 오늘 탭 ── */
 function viewToday(){var tp=trainPhase(),dp=dietPhase(),schedKey=curSched()[DOW],key=activeKey(),dl=dayLog();
@@ -1169,7 +1182,7 @@ function viewToday(){var tp=trainPhase(),dp=dietPhase(),schedKey=curSched()[DOW]
  var banner='<div class="card" style="padding:12px 14px;margin-bottom:14px;border-color:'+ACC+'33">'+
   '<div class="row" style="justify-content:space-between"><span class="mono" style="font-size:11px;color:'+ACC+';letter-spacing:.06em">'+tp.id+' · '+tp.name+'</span>'+
   '<span class="mono" style="font-size:11px;color:'+MUT+'">'+(isMaint()?'유지 모드':'블록 '+blockNo())+'</span></div>'+
-  '<div style="font-size:13px;margin-top:6px"><b>'+dp.name+'</b> · 목표 '+dp.goal.toFixed(1)+'kg · D-'+dDay()+(streak>=2?' · 🔥 '+streak+'일 연속':'')+'</div>'+
+  '<div style="font-size:13px;margin-top:6px"><b>'+dp.name+'</b> · 목표 '+dp.goal.toFixed(1)+'kg'+(dp.hold?(function(){var lw=latestWeight();return lw!=null?' · 복근까지 '+Math.max(0,lw-dp.goal).toFixed(1)+'kg':'';})():' · D-'+dDay())+(streak>=2?' · 🔥 '+streak+'일 연속':'')+'</div>'+
   '<div style="font-size:12px;color:'+MUT+';margin-top:3px">'+tp.focus+' · '+dp.kcal.toLocaleString()+'kcal / 단백질 '+dp.protein+'g</div></div>';
  var g=guardInfo();
  var guard=g?'<div class="card" style="padding:12px 14px;margin-bottom:14px;border-color:'+CRIT+';color:'+CRIT+';font-size:13px">'+g+'</div>':'';
@@ -1396,8 +1409,8 @@ function weekReportHTML(){
  if(pj){var dpx=dietPhase();
   if(pj.done)rows.push(["목표 도달","이미 달성! 🎉"]);
   else if(pj.stall)rows.push(["도달 예측","페이스가 반대 방향 — 코칭 신호 확인"]);
-  else rows.push(["도달 예측 ("+dpx.goal.toFixed(1)+"kg)",pj.proj.slice(5).replace("-","/")+" ("+(pj.diff>0?"목표일 +"+pj.diff+"일 늦음":pj.diff<0?"목표일보다 "+(-pj.diff)+"일 빠름 ✓":"목표일 정확 ✓")+")"]);
-  if(!pj.done&&!pj.stall&&pj.diff>7&&!verdict){verdict="예상 도달이 "+pj.diff+"일 늦어요 — 칼로리 150 줄이거나 플랜 탭에서 목표 조정";vcol=ACC;}}
+  else rows.push(["도달 예측 ("+dpx.goal.toFixed(1)+"kg)",pj.proj.slice(5).replace("-","/")+(pj.diff==null?" 무렵 (복근까지 커팅 연장중)":" ("+(pj.diff>0?"목표일 +"+pj.diff+"일 늦음":pj.diff<0?"목표일보다 "+(-pj.diff)+"일 빠름 ✓":"목표일 정확 ✓")+")")]);
+  if(!pj.done&&!pj.stall&&pj.diff!=null&&pj.diff>7&&!verdict){verdict="예상 도달이 "+pj.diff+"일 늦어요 — 칼로리 150 줄이거나 플랜 탭에서 목표 조정";vcol=ACC;}}
  var body2=rows.map(function(r){return '<div class="row" style="justify-content:space-between;padding:6px 0;border-top:1px solid '+LINE+'"><span style="font-size:12px;color:'+MUT+'">'+r[0]+'</span><span class="mono" style="font-size:12px">'+r[1]+'</span></div>';}).join("");
  return '<div class="card" style="padding:14px 16px;margin-bottom:12px"><div class="mono" style="font-size:11px;color:'+MUT+';letter-spacing:.06em;margin-bottom:4px">주간 리포트 · 최근 7일 vs 이전 7일</div>'+body2+
   (verdict?'<div style="font-size:12px;color:'+vcol+';margin-top:8px;font-weight:600">'+verdict+'</div>':'')+'</div>';}
@@ -1413,7 +1426,7 @@ function viewProgress(){
  var moved=latest?(dp.cut?dp.startRef-latest.weight:latest.weight-dp.startRef):0;
  var pctDone=total?Math.min(100,Math.max(0,(moved/total)*100)):0;
  var goalTile=latest?'<div class="card" style="padding:16px;margin-bottom:12px"><div class="row" style="justify-content:space-between"><div>'+
-  '<div class="mono" style="font-size:11px;color:'+MUT+';letter-spacing:.06em">목표('+dp.goal.toFixed(1)+'kg)까지 · D-'+dDay()+'</div>'+
+  '<div class="mono" style="font-size:11px;color:'+MUT+';letter-spacing:.06em">목표('+dp.goal.toFixed(1)+'kg)까지'+(dp.hold?' · 복근까지 커팅 연장중':' · D-'+dDay())+'</div>'+
   '<div class="mono" style="font-size:26px;font-weight:700;margin-top:2px">'+Math.max(0,remain).toFixed(1)+'<span style="font-size:14px;color:'+MUT+'"> kg</span></div>'+
   '<div style="font-size:12px;color:'+(remain<=0?TEAL:MUT)+';margin-top:2px">'+(remain<=0?'목표 달성! 🎉':'진행률 '+pctDone.toFixed(0)+'%')+'</div></div>'+
   '<div class="mono" style="text-align:right;font-size:11px;color:'+MUT+'">최근 체중<div style="font-size:20px;font-weight:700;color:'+TX+';margin-top:2px">'+latest.weight.toFixed(1)+'</div>'+latest.date.slice(5)+'</div></div>'+
@@ -1502,6 +1515,7 @@ function viewPlan(){var ci=trainPhaseIdx(),dpb=dietPhaseBase(),s=state.settings|
   '<div style="flex:1"><div style="font-size:11px;color:'+MUT+';margin-bottom:5px">일일 칼로리</div>'+inp("sKcal",dpb.kcal,s.kcal)+'</div>'+
   '<div style="flex:1"><div style="font-size:11px;color:'+MUT+';margin-bottom:5px">단백질 g</div>'+inp("sProtein",dpb.protein,s.protein)+'</div></div>'+
   (function(){var w6=state.settings&&state.settings.week6;return '<button onclick="toggleWeek6()" style="width:100%;margin-bottom:10px;background:'+(w6?ACC:SURF2)+';border:1px solid '+(w6?ACC:LINE)+';color:'+(w6?"#1a1206":TX)+';border-radius:9px;padding:11px 0;font-size:13px;font-weight:600">'+(w6?"✓ 주 6일 훈련 — 토요일도 운동 (일요일만 휴식)":"주 5일 훈련 — 주말 휴식 (탭하면 토요일 추가)")+'</button>';})()+
+  (function(){var hc=state.settings&&state.settings.holdCut;var tg=(state.settings&&state.settings.goal!=null)?state.settings.goal:72.5;return '<button onclick="toggleHoldCut()" style="width:100%;margin-bottom:10px;background:'+(hc?ACC:SURF2)+';border:1px solid '+(hc?ACC:LINE)+';color:'+(hc?"#1a1206":TX)+';border-radius:9px;padding:11px 0;font-size:13px;font-weight:600">'+(hc?"✓ 복근까지 커팅 연장 중 (목표 "+tg.toFixed(1)+"kg 도달 시 자동 해제)":"복근 나올 때까지 커팅 연장 (8/31 자동 벌크 전환 막기)")+'</button>'+(hc?'<div style="font-size:11px;color:'+MUT+';margin:-4px 0 10px;line-height:1.5">날짜가 지나도 벌크로 안 넘어가고 커팅(1,800kcal·단백질 175g) 유지해요. 목표 체중을 바꾸려면 아래 "목표 체중"에 입력 후 저장.</div>':'');})()+
   '<div style="display:flex;gap:8px"><button onclick="saveSettings()" style="flex:1;background:'+ACC+';color:#1a1206;font-weight:700;border-radius:9px;padding:10px 0;font-size:13px">설정 저장</button>'+
   '<button onclick="clearSettings()" style="flex:1;background:'+SURF2+';border:1px solid '+LINE+';color:'+TX+';border-radius:9px;padding:10px 0;font-size:13px">기본값으로</button></div>'+
   '<button onclick="resetAll()" style="width:100%;margin-top:8px;background:transparent;border:1px solid '+CRIT+'55;color:'+CRIT+';border-radius:9px;padding:10px 0;font-size:13px">전체 데이터 초기화</button></div>';
